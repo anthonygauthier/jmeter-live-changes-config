@@ -44,7 +44,9 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     @Override
     public void iterationStart(LoopIterationEvent event) {
         ThreadGroup threadGroup = (ThreadGroup) JMeterContextService.getContext().getThreadGroup();
-        checkForThreadChange(threadGroup, event);
+        String tmp = JMeterContextService.getContext().getThread().getThreadName();
+        String threadName = tmp.substring(0, tmp.lastIndexOf("-"));
+        this.checkForThreadChanges(threadGroup, event, threadName);
     }
 
 
@@ -62,32 +64,37 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
         logger.info(String.format("Exposed API on port %d", this.httpServerPort));
     }
 
-    public static int getActiveThreads() {
-        return activeThreads;
-    }
-
-    public static void setActiveThreads(int num) {
-        activeThreads = num;
-    }
-
-    public void checkForThreadChange(ThreadGroup threadGroup, LoopIterationEvent event) {
-        if(activeThreads != JMeterContextService.getNumberOfThreads() && event.getIteration() > 1) {
+    public void checkForThreadChanges(ThreadGroup threadGroup, LoopIterationEvent event, String threadName) {
+        if(activeThreads != threadGroup.numberOfActiveThreads() && event.getIteration() > 1) {
             int diff = threadGroup.numberOfActiveThreads() - activeThreads;
 
-            // if diff is negative, then add threads
             if(diff != 0) {
                 for(int i=0; i < Math.abs(diff); i++) {
                     if(diff < 0) {
                         threadGroup.addNewThread(0, new StandardJMeterEngine());
                     } else {
-                        // figure out a way to stop specific threads
+                        logger.warn("Stopping: " + threadName + "-" + threadGroup.getNumThreads());
+                        threadGroup.stopThread(threadName + "-" + threadGroup.numberOfActiveThreads(), true);
                     }
                 }
             } else {
-                threadGroup.tellThreadsToStop();
+                // gracefully stop threads
+                threadGroup.stop();
+                threadGroup.waitThreadsStopped();
             }
         } else {
             activeThreads = threadGroup.numberOfActiveThreads();
         }
+    }
+
+
+    /**
+     * Getters / Setters
+     */
+    public static int getActiveThreads() {
+        return activeThreads;
+    }
+    public static void setActiveThreads(int num) {
+        activeThreads = num;
     }
 }

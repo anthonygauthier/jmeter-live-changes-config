@@ -17,6 +17,16 @@ Here are some scenarios where this kind of tool becomes very handy:
 
 ... And many more.
 
+## Roadmap
+- [x] Add threads
+- [x] Remove threads
+- [ ] Get variables
+- [ ] Modify variables
+- [ ] Get properties
+- [ ] Modify properties
+- [ ] Support for native distributed load testing
+- [ ] Support for distributed load testing through multiple injectors executing the same test
+
 ## Contributing
 This plugin is licensed under the MIT license. 
 

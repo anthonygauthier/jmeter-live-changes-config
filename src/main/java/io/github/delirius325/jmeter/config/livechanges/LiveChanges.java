@@ -72,7 +72,6 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
                     if(diff < 0) {
                         threadGroup.addNewThread(0, new StandardJMeterEngine());
                     } else {
-                        logger.warn("Stopping: " + threadName + "-" + threadGroup.getNumThreads());
                         threadGroup.stopThread(threadName + "-" + threadGroup.numberOfActiveThreads(), true);
                     }
                 }
@@ -87,11 +86,18 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     }
 
     public void checkForVariableChanges(JMeterVariables vars, LoopIterationEvent event) {
-        jMeterVariables = vars;
-        JMeterContextService.getContext().setVariables(jMeterVariables);
+        if(event.getIteration() == 1) {
+            jMeterVariables = vars;
+        } else {
+            JMeterContextService.getContext().setVariables(jMeterVariables);
+        }
     }
     public void checkForPropertyChanges(Properties props, LoopIterationEvent event) {
-        jMeterProperties = props;
+        if(event.getIteration() == 1) {
+            jMeterProperties = props;
+        } else {
+//            JMeterContextService.getContext().setVariables(jmete);
+        }
     }
 
 

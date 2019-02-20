@@ -1,50 +1,44 @@
 package io.github.delirius325.jmeter.config.livechanges.api;
 
-import org.apache.jmeter.threads.JMeterContext;
-import org.webbitserver.*;
-import org.webbitserver.netty.NettyWebServer;
-import org.webbitserver.rest.Rest;
+import io.github.delirius325.jmeter.config.livechanges.LiveChanges;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.glassfish.jersey.servlet.ServletContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class App {
-    private WebServer instance;
-    private Rest rest;
+    private static final Logger logger = LoggerFactory.getLogger(LiveChanges.class);
+
+    private Server server;
     private int port;
-    private JMeterContext ctx;
 
     public App(int p) {
         this.port = p;
-        this.instance = new NettyWebServer(this.port);
-        this.rest = new Rest(this.instance);
+        this.server = new Server(this.port);
     }
 
-    public void setupRoutes() {
-        /**
-         * Test route
-         */
-        this.rest.GET("/test/connectivity", new HttpHandler() {
-            @Override
-            public void handleHttpRequest(HttpRequest request, HttpResponse response, HttpControl control) throws Exception {
-                response.content("You are connected!").end();
-            }
-        });
-
-        /**
-         * Other routes
-         */
-        Threads.addRoutes(rest);
-        Variables.addRoutes(rest);
-        Properties.addRoutes(rest);
-    }
-
-    /**
-     *  Methods to start or stop the API
-     */
     public void start() {
-        this.instance.start();
-        this.setupRoutes();
+        ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
+        servletContextHandler.setContextPath("/");
+        this.server.setHandler(servletContextHandler);
+        ServletHolder servletHolder = servletContextHandler.addServlet(ServletContainer.class, "/api/*");
+        servletHolder.setInitOrder(0);
+        servletHolder.setInitParameter(
+                "jersey.config.server.provider.packages",
+                "io.github.delirius325.jmeter.config.livechanges.api.resources"
+        );
+        try {
+            server.start();
+        } catch (Exception e) {
+            logger.error("Error occurred while starting embedded Jetty server", e);
+            System.exit(1);
+        }
     }
 
-    public void stop() {
-        this.instance.stop();
+    public void stop() throws Exception {
+        this.server.stop();
+        this.server.destroy();
     }
 }

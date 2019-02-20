@@ -56,6 +56,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-util</artifactId>
+			<version>${jettyVersion}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
 			<version>${jettyVersion}</version>
 		</dependency>
@@ -88,16 +93,6 @@
 			<groupId>org.glassfish.jersey.inject</groupId>
 			<artifactId>jersey-hk2</artifactId>
 			<version>${jerseyVersion}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webbitserver</groupId>
-			<artifactId>webbit</artifactId>
-			<version>0.4.15</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webbitserver</groupId>
-			<artifactId>webbit-rest</artifactId>
-			<version>0.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.jmeter</groupId>

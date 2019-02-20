@@ -25,11 +25,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     private static Properties jMeterProperties;
 
     @Override
-    public void testStarted() {
-
-        this.startServer();
-
-    }
+    public void testStarted() { this.startServer(); }
 
     @Override
     public void testStarted(String host) {
@@ -72,7 +68,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
             if(diff != 0) {
                 for(int i=0; i < Math.abs(diff); i++) {
                     if(diff < 0) {
-                        threadGroup.addNewThread(0, new StandardJMeterEngine());
+                        threadGroup.addNewThread(0, JMeterContextService.getContext().getEngine());
                     } else {
                         threadGroup.stopThread(threadName + "-" + threadGroup.numberOfActiveThreads(), true);
                     }

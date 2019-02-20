@@ -14,12 +14,12 @@ public class TestAppServer {
     private static int PORT = 8080;
     private static String APP_ADDRESS = "http://localhost:" + PORT;
 
-    private App server;
+    private App app;
 
     @Before
     public void startTest() throws Exception {
-        this.server = new App(PORT);
-        this.server.start();
+        this.app = new App(PORT);
+        this.app.start();
     }
 
     @Test
@@ -34,6 +34,6 @@ public class TestAppServer {
 
     @After
     public void stopTest() throws Exception {
-        this.server.stop();
+        this.app.stop();
     }
 }

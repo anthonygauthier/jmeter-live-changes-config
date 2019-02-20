@@ -45,7 +45,7 @@
 		<org.apache.jmeter.version>4.0</org.apache.jmeter.version>
 		<org.apache.commons>3.7</org.apache.commons>
 		<slf4jVersion>1.7.25</slf4jVersion>
-		<jettyVersion>9.4.6.v20170531</jettyVersion>
+		<jettyVersion>[9.4.11.v20180605,)</jettyVersion>
 		<jerseyVersion>2.27</jerseyVersion>
 	</properties>
 	<dependencies>

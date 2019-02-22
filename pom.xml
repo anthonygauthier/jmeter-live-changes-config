@@ -46,7 +46,7 @@
 		<org.apache.commons>3.7</org.apache.commons>
 		<slf4jVersion>1.7.25</slf4jVersion>
 		<jerseyVersion>2.28</jerseyVersion>
-        <jettyVersion>9.4.9.v20180320</jettyVersion>
+        <jettyVersion>[9.4.11.v20180605,)</jettyVersion>
 	</properties>
 	<dependencies>
 		<dependency>

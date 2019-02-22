@@ -45,19 +45,14 @@
 		<org.apache.jmeter.version>4.0</org.apache.jmeter.version>
 		<org.apache.commons>3.7</org.apache.commons>
 		<slf4jVersion>1.7.25</slf4jVersion>
-		<jettyVersion>[9.4.11.v20180605,)</jettyVersion>
-		<jerseyVersion>2.27</jerseyVersion>
+		<jerseyVersion>2.28</jerseyVersion>
+        <jettyVersion>9.4.9.v20180320</jettyVersion>
 	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>com.mashape.unirest</groupId>
 			<artifactId>unirest-java</artifactId>
 			<version>1.4.9</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-util</artifactId>
-			<version>${jettyVersion}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
@@ -119,9 +114,21 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>${org.apache.commons}</version>
+			<groupId>javax.ws.rs</groupId>
+			<artifactId>javax.ws.rs-api</artifactId>
+			<version>2.0.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.25</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.tdunning</groupId>
+			<artifactId>json</artifactId>
+			<version>1.8</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -147,11 +154,6 @@
 			<artifactId>junit-vintage-engine</artifactId>
 			<version>${junit.vintage.version}</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>[2.8.11.1,)</version>
 		</dependency>
 	</dependencies>
 	<distributionManagement>
@@ -195,6 +197,14 @@
 	</profiles>
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>1.4.1</version>
+				<configuration>
+					<rules><dependencyConvergence/></rules>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>

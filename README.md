@@ -1,5 +1,8 @@
 # JMeter Live Changes Config
 
+### Support the author
+[![patreon](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/bePatron?u=17797269)
+
 ## Overview
 This plugin, which is still in an early development stage __(v 0.0.1)__, allows the user to communicate with a RESTful API to change JMeter tests to change values such as:
 

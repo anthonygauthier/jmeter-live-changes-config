@@ -8,17 +8,28 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Class for the App object
+ * The App object is the server on which the LiveChanges API is held and exposed
+ */
 public class App {
     private static final Logger logger = LoggerFactory.getLogger(LiveChanges.class);
 
     private Server server;
     private int port;
 
+    /**
+     * Constructor
+     * @param p int, supplied via the JMeter LiveChanges Config element
+     */
     public App(int p) {
         this.port = p;
         this.server = new Server(this.port);
     }
 
+    /**
+     * Method that starts the Web Server (JeTTY)
+     */
     public void start() {
         ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         servletContextHandler.setContextPath("/");
@@ -38,6 +49,10 @@ public class App {
         }
     }
 
+    /**
+     * Method that stops and destroys the web server
+     * @throws Exception if server doesn't stop properly
+     */
     public void stop() throws Exception {
         this.server.stop();
         this.server.destroy();

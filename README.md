@@ -26,11 +26,11 @@ Here are some scenarios where this kind of tool becomes very handy:
 - [x] Modify properties
 - [x] Support for multiple `Thread Group`
 - [ ] Support for native distributed load testing
-- [ ] Support for distributed load testing through multiple injectors executing the same test
 - [x] Initial documentation of the REST API
 - [x] Restructure code-base so it's easier to read and maintain
 - [ ] Generate a Swagger (or some sort of API docs)
 - [ ] Publish version __1.0.0__ to [JMeter-Plugins](https://jmeter-plugins.org/)
+- [ ] Publish plugin to Maven Central
 
 ## Known issues/limitations
 

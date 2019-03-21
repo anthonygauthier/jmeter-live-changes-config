@@ -1,4 +1,4 @@
-package io.github.delirius325.jmeter.config.livechanges.utils;
+package io.github.delirius325.jmeter.config.livechanges.helpers;
 
 import org.json.JSONObject;
 

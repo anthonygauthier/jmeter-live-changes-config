@@ -8,6 +8,8 @@
 * Added `GET /api/test/status` endpoint to retrieve information about the test status (time running, finished, started, etc.)
 * Added `GET /api/test/end` endpoint to end the test run
 * Added JavaDoc compatible comments to all the classes/methods
+* Added `ResultHolder` class which calculates and holds a summary of the test results
+* Added `GET /api/test/summary` endpoint to retrieve a results summary of every sample (#1)
 
 
 Note: All endpoints require the test to be running to be consumed.

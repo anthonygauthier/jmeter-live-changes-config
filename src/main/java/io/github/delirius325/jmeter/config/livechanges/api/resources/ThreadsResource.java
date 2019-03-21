@@ -1,8 +1,8 @@
 package io.github.delirius325.jmeter.config.livechanges.api.resources;
 
 import io.github.delirius325.jmeter.config.livechanges.LiveChanges;
-import io.github.delirius325.jmeter.config.livechanges.utils.JSONHelper;
-import io.github.delirius325.jmeter.config.livechanges.utils.ThreadGroupHelper;
+import io.github.delirius325.jmeter.config.livechanges.helpers.JSONHelper;
+import io.github.delirius325.jmeter.config.livechanges.helpers.ThreadGroupHelper;
 import org.apache.jmeter.threads.ThreadGroup;
 import org.json.JSONObject;
 
@@ -47,6 +47,8 @@ public class ThreadsResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getThreads() {
+        // Get current active threads
+
         return Response.ok(ThreadGroupHelper.getAllThreadGroupsAsJSON().toString()).build();
     }
 

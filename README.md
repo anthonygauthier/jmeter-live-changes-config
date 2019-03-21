@@ -8,6 +8,12 @@ This plugin, which is still in an early development stage __(v 0.0.2)__, allows 
 * Variables
 * Properties
 
+It also allows the user to do the following things
+
+* View a summary of the test results
+* End the test remotely
+* Retrieve a quick status of the test (time running, active threads, etc.)
+
 ## Why
 Here are some scenarios where this kind of tool becomes very handy:
 

@@ -194,7 +194,3 @@ __Response__ example :
 This plugin is licensed under the MIT license. 
 
 All contributions are welcomed and appreciated.
-
-#### Supporting the author
-[![patreon](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/bePatron?u=17797269)
-

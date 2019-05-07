@@ -2,6 +2,7 @@ package io.github.delirius325.jmeter.config.livechanges;
 
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.JMeterContextService;
+import org.ojalgo.random.SampleSet;
 
 import java.util.*;
 
@@ -22,8 +23,6 @@ public class ResultHolder {
     private long totalSentBytes;
     private int totalErrors;
     private int totalSamples;
-
-
 
     public ResultHolder(){
         this.responseTimeSet = new HashSet<>();
@@ -47,7 +46,7 @@ public class ResultHolder {
         long totalSquaredDiff = 0;
         HashSet<Long> squaredDiff = new HashSet<>();
 
-        // substract, square and add to a temporary set
+        // subtract, square and add to a temporary set
         this.responseTimeSet.forEach(number -> {
             number = (number - this.avgResponseTime)^2;
             squaredDiff.add(number);

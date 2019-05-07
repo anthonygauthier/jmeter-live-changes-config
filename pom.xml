@@ -3,12 +3,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.delirius325</groupId>
 	<artifactId>jmeter.config.livechanges</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 	<packaging>jar</packaging>
 
-	<name>jmeter.backendlistener.livechanges</name>
+	<name>jmeter.config.livechanges</name>
 	<description>This plugin serves as a channel to expose a REST API to change a JMeter Test Plan live while it's being executed.</description>
-	<url>https://github.com/delirius325/jmeter-livechanges-backend-listener</url>
+	<url>https://github.com/delirius325/jmeter-live-changes-config</url>
 
 	<licenses>
 		<license>
@@ -19,7 +19,7 @@
 	</licenses>
 
 	<scm>
-		<url>https://github.com/delirius325/jmeter-livechanges-backend-listener.git</url>
+		<url>https://github.com/delirius325/jmeter-live-changes-config.git</url>
 	</scm>
 
 	<developers>
@@ -42,11 +42,11 @@
 		<junit.vintage.version>${junit.version}.0</junit.vintage.version>
 		<junit.jupiter.version>5.0.0</junit.jupiter.version>
 		<junit.platform.version>1.0.0</junit.platform.version>
-		<org.apache.jmeter.version>4.0</org.apache.jmeter.version>
-		<org.apache.commons>3.7</org.apache.commons>
+		<org.apache.jmeter.version>5.3</org.apache.jmeter.version>
+		<org.apache.commons>3.10</org.apache.commons>
 		<slf4jVersion>1.7.25</slf4jVersion>
-		<jerseyVersion>2.28</jerseyVersion>
-        <jettyVersion>[9.4.11.v20180605,)</jettyVersion>
+		<jerseyVersion>2.31</jerseyVersion>
+        <jettyVersion>[9.4.29.v20200521,)</jettyVersion>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -62,6 +62,11 @@
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-servlet</artifactId>
+			<version>${jettyVersion}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-util</artifactId>
 			<version>${jettyVersion}</version>
 		</dependency>
 		<dependency>
@@ -155,6 +160,11 @@
 			<version>${junit.vintage.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.ojalgo</groupId>
+			<artifactId>ojalgo</artifactId>
+			<version>48.1.0</version>
+		</dependency>
 	</dependencies>
 	<distributionManagement>
 		<snapshotRepository>
@@ -232,13 +242,17 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9.1</version>
+				<version>2.10.4</version>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
 						<goals>
 							<goal>jar</goal>
 						</goals>
+						<configuration> <!-- add this to disable checking -->
+							<additionalparam>-Xdoclint:none</additionalparam>
+							<detectJavaApiLink>false</detectJavaApiLink>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

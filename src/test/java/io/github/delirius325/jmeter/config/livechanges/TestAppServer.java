@@ -11,7 +11,7 @@ import io.github.delirius325.jmeter.config.livechanges.api.App;
 import static junit.framework.TestCase.assertTrue;
 
 public class TestAppServer {
-    private static int PORT = 8080;
+    private static int PORT = 8888;
     private static String APP_ADDRESS = "http://localhost:" + PORT;
 
     private App app;
@@ -26,6 +26,7 @@ public class TestAppServer {
     public void testServerConnectivity() {
         try {
             HttpResponse<String> response = Unirest.get(APP_ADDRESS + "/api/test/connectivity").asString();
+            System.out.println(response.getBody());
             assertTrue(response.getBody().contains("connected"));
         } catch (Exception e) {
             e.printStackTrace();

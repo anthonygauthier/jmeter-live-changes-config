@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Properties;
 
 /**
@@ -36,6 +37,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     private static int activeThreads;
     private static JMeterVariables jMeterVariables;
     private static Properties jMeterProperties;
+    private static HashSet<ThreadGroup> testThreadGroups = new HashSet<>();
     private static ThreadGroup activeThreadGroup = new ThreadGroup();
     private static boolean stopTest;
     private static HashTree testPlanTree;
@@ -63,7 +65,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
         try {
             this.finalizeTest();
         } catch (Exception e) {
-            logger.error("LiveChanges API was unable to gracefully shutdown. More info into JMeter's console.");
+            logger.error("LiveChanges API was unable to gracefully shutdown. More info in JMeter's console.");
         }
     }
 
@@ -76,12 +78,13 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
         try {
             this.finalizeTest();
         } catch (Exception e) {
-            logger.error("LiveChanges API was unable to gracefully shutdown. More info into JMeter's console.");
+            logger.error("LiveChanges API was unable to gracefully shutdown. More info in JMeter's console.");
         }
     }
 
     /**
      * Method that is executed upon every thread iteration of the JMeter script
+     * This plugin works specifically because of this method that acts as an non-blocking event loop
      * @param event LoopIterationEvent
      */
     @Override
@@ -89,11 +92,13 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
         if(event.getIteration() == 1) {
             jMeterEngine = JMeterContextService.getContext().getEngine();
         }
+
         ThreadGroup threadGroup = (ThreadGroup) JMeterContextService.getContext().getThreadGroup();
         JMeterVariables vars = JMeterContextService.getContext().getVariables();
         Properties props = JMeterContextService.getContext().getProperties();
         String tmp = JMeterContextService.getContext().getThread().getThreadName();
         String threadName = tmp.substring(0, tmp.lastIndexOf("-"));
+        this.getTestThreadGroups().add(threadGroup);
 
         if(stopTest) {
             jMeterEngine.askThreadsToStop();
@@ -180,7 +185,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
             this.app = new App(this.httpServerPort);
             this.app.start();
         } catch (IOException e) {
-            logger.error("An error occured when loading the test plan tree. View JMeter's console for more information.");
+            logger.error("LiveChanges was unable to load the test plan tree. More info in JMeter's console.");
             e.printStackTrace();
         }
     }
@@ -193,7 +198,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
             this.app.stop();
             logger.info("LiveChanges API was successfully stopped.");
         } catch (Exception e) {
-            logger.error("Unable to correctly shutdown Jetty server", e);
+            logger.error("LiveChanges was unable to correctly shutdown Jetty server. More info in JMeter's console", e);
         }
     }
 
@@ -207,7 +212,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
         this.httpServerPort = port;
     }
     public int getCalculationRate() {
-        return calculationRate;
+        return this.calculationRate;
     }
     public void setCalculationRate(int rate) {
         this.calculationRate = rate;
@@ -226,4 +231,6 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     public static void setjMeterVariables(JMeterVariables vars) { jMeterVariables = vars; }
     public static Properties getjMeterProperties() { return jMeterProperties; }
     public static HashTree getTestPlanTree() { return testPlanTree; }
-}
+    public static HashSet<ThreadGroup> getTestThreadGroups() { return testThreadGroups; }
+    public static void setTestThreadGroups(HashSet<ThreadGroup> threadGroupHashSet) { LiveChanges.testThreadGroups = threadGroupHashSet; }
+ }

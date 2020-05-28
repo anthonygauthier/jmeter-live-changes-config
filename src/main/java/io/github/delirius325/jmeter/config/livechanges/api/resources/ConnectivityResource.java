@@ -13,7 +13,7 @@ import javax.ws.rs.core.MediaType;
 public class ConnectivityResource {
     /**
      * A simple endpoint testing the connectivity to the API
-     * @return
+     * @return returns the string "connected" if successful
      */
     @GET
     @Path("/connectivity")

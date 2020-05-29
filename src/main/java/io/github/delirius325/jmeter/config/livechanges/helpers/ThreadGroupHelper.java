@@ -70,24 +70,25 @@ public class ThreadGroupHelper {
      */
     public static JSONObject createThreadGroupObject(ThreadGroup threadGroup) {
         if(threadGroup != null) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("name", threadGroup.getName());
-            jsonObject.put("rampUp", threadGroup.getRampUp());
-            jsonObject.put("isEnabled", threadGroup.isEnabled());
-            jsonObject.put("active", threadGroup.numberOfActiveThreads());
-            jsonObject.put("comment", threadGroup.getComment());
-            jsonObject.put("getOnErrorStartNextLoop",  threadGroup.getOnErrorStartNextLoop());
-            jsonObject.put("getOnErrorStopTest",  threadGroup.getOnErrorStopTest());
-            jsonObject.put("getOnErrorStopTestNow",  threadGroup.getOnErrorStopTestNow());
-            jsonObject.put("getOnErrorStopThread",  threadGroup.getOnErrorStopThread());
+            JSONObject parentObject = new JSONObject();
+            JSONObject childObject = new JSONObject();
+            childObject.put("rampUp", threadGroup.getRampUp());
+            childObject.put("isEnabled", threadGroup.isEnabled());
+            childObject.put("active", threadGroup.numberOfActiveThreads());
+            childObject.put("comment", threadGroup.getComment());
+            childObject.put("getOnErrorStartNextLoop",  threadGroup.getOnErrorStartNextLoop());
+            childObject.put("getOnErrorStopTest",  threadGroup.getOnErrorStopTest());
+            childObject.put("getOnErrorStopTestNow",  threadGroup.getOnErrorStopTestNow());
+            childObject.put("getOnErrorStopThread",  threadGroup.getOnErrorStopThread());
+            parentObject.put(threadGroup.getName(), childObject);
 
             if(threadGroup.getScheduler()) {
                 JSONObject schedulerObject = new JSONObject();
                 schedulerObject.put("delay", threadGroup.getDelay());
                 schedulerObject.put("duration", threadGroup.getDuration());
-                jsonObject.put("scheduler", schedulerObject);
+                childObject.put("scheduler", schedulerObject);
             }
-            return jsonObject;
+            return parentObject;
         }
         return new JSONObject();
     }

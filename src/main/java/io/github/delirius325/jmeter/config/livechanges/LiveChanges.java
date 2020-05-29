@@ -58,7 +58,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
      * @param host String
      */
     @Override
-    public void testStarted(String host) { this.startServer(); }
+    public void testStarted(String host) { }
 
     /**
      * Method that is executed when the test has ended
@@ -77,13 +77,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
      * @param host String
      */
     @Override
-    public void testEnded(String host) {
-        try {
-            this.finalizeTest();
-        } catch (Exception e) {
-            logger.error("LiveChanges API was unable to gracefully shutdown. More info in JMeter's console.");
-        }
-    }
+    public void testEnded(String host) { }
 
     /**
      * Method that is executed upon every thread iteration of the JMeter script

@@ -76,10 +76,10 @@ public class ThreadGroupHelper {
             childObject.put("isEnabled", threadGroup.isEnabled());
             childObject.put("active", threadGroup.numberOfActiveThreads());
             childObject.put("comment", threadGroup.getComment());
-            childObject.put("onErrorStartNextLoop",  threadGroup.getOnErrorStartNextLoop());
-            childObject.put("onErrorStopTest",  threadGroup.getOnErrorStopTest());
-            childObject.put("onErrorStopTestNow",  threadGroup.getOnErrorStopTestNow());
-            childObject.put("onErrorStopThread",  threadGroup.getOnErrorStopThread());
+            childObject.put("getOnErrorStartNextLoop",  threadGroup.getOnErrorStartNextLoop());
+            childObject.put("getOnErrorStopTest",  threadGroup.getOnErrorStopTest());
+            childObject.put("getOnErrorStopTestNow",  threadGroup.getOnErrorStopTestNow());
+            childObject.put("getOnErrorStopThread",  threadGroup.getOnErrorStopThread());
             parentObject.put(threadGroup.getName(), childObject);
 
             if(threadGroup.getScheduler()) {

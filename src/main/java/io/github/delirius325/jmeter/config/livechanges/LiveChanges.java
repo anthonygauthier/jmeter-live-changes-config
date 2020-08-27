@@ -53,7 +53,10 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
      * Method that is executed when the test has started
      */
     @Override
-    public void testStarted() { this.startServer(); }
+    public void testStarted() {
+        samplerMap = new SamplerMap();
+        this.startServer();
+    }
 
     /**
      * Method that is executed when the test has started on a remote host

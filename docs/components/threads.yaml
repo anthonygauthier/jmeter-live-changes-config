@@ -1,0 +1,72 @@
+components:
+  schemas:
+    AllThreadsResponse:
+      type: array
+      items:
+        type: object
+          properties:
+            threadGroup:
+              type: object
+              properties:
+                scheduler:
+                  type: object
+                  properties:
+                    duration:
+                      type: integer
+                    delay:
+                      type: integer
+                onErrorStopThread:
+                  type: boolean
+                isEnabled:
+                  type: boolean
+                onErrorStopTestNow:
+                  type: boolean
+                comment:
+                  type: string
+                onErrorStartNextLoop:
+                  type: boolean
+                rampUp:
+                  type: integer
+    SingleThreadResponse:
+      type: object
+        properties:
+          threadGroup:
+            type: object
+            properties:
+              scheduler:
+                type: object
+                properties:
+                  duration:
+                    type: integer
+                  delay:
+                    type: integer
+              onErrorStopThread:
+                type: boolean
+              isEnabled:
+                type: boolean
+              onErrorStopTestNow:
+                type: boolean
+              comment:
+                type: string
+              onErrorStartNextLoop:
+                type: boolean
+              rampUp:
+                type: integer
+    ModifyThreadRequest:
+      type: object
+      properties:
+        threadNum:
+          type: integer
+          example: 3
+    ModifyThreadResponse:
+      type: object
+      properties:
+        description:
+          type: string
+          example: "Changed number of active threads."
+        threadNum:
+          type: integer
+          example: 3
+        info:
+          type: string
+          example: "success"

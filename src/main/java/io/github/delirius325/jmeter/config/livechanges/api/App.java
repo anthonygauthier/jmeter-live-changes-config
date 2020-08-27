@@ -34,7 +34,7 @@ public class App {
         ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         servletContextHandler.setContextPath("/");
         this.server.setHandler(servletContextHandler);
-        ServletHolder servletHolder = servletContextHandler.addServlet(ServletContainer.class, "/api/*");
+        ServletHolder servletHolder = servletContextHandler.addServlet(ServletContainer.class, "/v1/*");
         servletHolder.setInitOrder(0);
         servletHolder.setInitParameter(
                 "jersey.config.server.provider.packages",

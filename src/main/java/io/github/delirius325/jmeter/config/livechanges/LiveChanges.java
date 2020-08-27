@@ -12,6 +12,7 @@ import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.services.FileServer;
 import org.apache.jmeter.testbeans.TestBean;
 import org.apache.jmeter.testelement.TestStateListener;
+import org.apache.jmeter.testelement.ThreadListener;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.apache.jmeter.threads.ThreadGroup;
@@ -27,7 +28,7 @@ import java.util.Properties;
 /**
  * Class that contains executes all the logic for the REST API to communicate with JMeter
  */
-public class LiveChanges extends ConfigTestElement implements TestBean, LoopIterationListener, TestStateListener, SampleListener {
+public class LiveChanges extends ConfigTestElement implements TestBean, LoopIterationListener, TestStateListener, SampleListener, ThreadListener {
     private static final String testPlanFile = String.format("%s/%s", FileServer.getFileServer().getBaseDir(), FileServer.getFileServer().getScriptName());
     private static final Logger logger = LoggerFactory.getLogger(LiveChanges.class);
 
@@ -46,6 +47,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     private static HashTree testPlanTree;
     private static StandardJMeterEngine jMeterEngine;
     private static SamplerMap samplerMap = new SamplerMap();
+    private static boolean stopThreadsFromAPI;
 
     /**
      * Method that is executed when the test has started
@@ -95,13 +97,13 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
         Properties props = JMeterContextService.getContext().getProperties();
         String tmp = JMeterContextService.getContext().getThread().getThreadName();
         String threadName = tmp.substring(0, tmp.lastIndexOf("-"));
-        this.getTestThreadGroups().add(threadGroup);
+        getTestThreadGroups().add(threadGroup);
 
         if(stopTest) {
             jMeterEngine.askThreadsToStop();
         }
 
-        this.checkForThreadChanges(threadGroup, event, threadName);
+        checkForThreadChanges(threadGroup, event, threadName);
         this.checkForVariableChanges(vars, event);
         this.checkForPropertyChanges(props, event);
     }
@@ -115,6 +117,17 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     @Override
     public void sampleOccurred(SampleEvent sampleEvent) {
         samplerMap.add(sampleEvent.getResult());
+    }
+
+    public void threadStarted() { }
+
+    public void threadFinished() {
+        // Doing this helps avoid weird errors from stopping the test within the GUI.
+        // This is due to the fact that JMeter isn't necessarily meant to stop/start thread on-the-go all the time
+        if (stopThreadsFromAPI) {
+            JMeterContextService.addTotalThreads(-1);
+        }
+        stopThreadsFromAPI = false;
     }
 
     /**
@@ -135,6 +148,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
                             threadGroup.addNewThread(0, jMeterEngine);
                         } else {
                             threadGroup.stopThread(threadName + "-" + threadGroup.numberOfActiveThreads(), true);
+                            stopThreadsFromAPI = true;
                         }
                     }
                 } else {
@@ -192,6 +206,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
      */
     private void finalizeTest() {
         try {
+            jMeterEngine.stopTest(true);
             this.app.stop();
             logger.info("LiveChanges API was successfully stopped.");
         } catch (Exception e) {

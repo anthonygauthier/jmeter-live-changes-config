@@ -47,8 +47,6 @@ public class ThreadsResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getThreads() {
-        // Get current active threads
-
         return Response.ok(ThreadGroupHelper.getAllThreadGroupsAsJSON().toString()).build();
     }
 

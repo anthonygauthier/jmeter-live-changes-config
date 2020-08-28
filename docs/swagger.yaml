@@ -1,0 +1,378 @@
+openapi: 3.0.0
+info:
+  title: Live Changes API
+  description: REST API documentation for the JMeter plugin "Live Changes Config". For more info, head over to our [GitHub repository](https://www.github.com/delirius325/jmeter-live-changes-config)
+  version: 0.1.0
+servers:
+  - url: http://your.host.com/v1
+    description: This is a test url meant to represent your host. The only valid part in this is the /v1 path
+paths:
+  /healthcheck:
+    get:
+      summary: Simple healthcheck endpoint
+      tags:
+        - Health
+      responses:
+        '200':    # status code
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "connected"
+  /threads:
+    get:
+      summary: Returns info about all thread groups
+      tags:
+        - Threads
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllThreadsResponse'
+  /threads/{threadName}:
+    get:
+      summary: Get thread group info by name
+      tags:
+        - Threads
+      parameters:
+        - in: path
+          name: threadName
+          schema:
+            type: string
+          required: true
+          description: Name of the thread group to retrieve
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SingleThreadResponse'
+    post:
+      summary: Modify/Update a thread group by its' name
+      tags:
+        - Threads
+      parameters:
+        - in: path
+          name: threadName
+          schema:
+            type: string
+          required: true
+          description: Name of the thread group to modify
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModifyThreadRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModifyThreadResponse'
+  /test/status:
+    get:
+      summary: Retrieves the status of the running test (duration, running time, etc.)
+      tags:
+        - Test
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestStatus'
+  /test/end:
+    get:
+      summary: Signals JMeter to stop the test
+      tags:
+        - Test
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestEnd'
+  /test/summary:
+    get:
+      summary: Returns a summary of the results at the time of query
+      tags:
+        - Test
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestSummary'
+  /variables:
+    get:
+      summary: Returns all the current variables
+      tags:
+        - Variables
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetVariables'
+    post:
+      summary: Modifies the variables specified in the request body
+      tags:
+        - Variables
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModifyVariablesReq'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModifyVariablesRes'
+  /properties:
+    get:
+      summary: Returns all the current properties
+      tags:
+        - Properties
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetProperties'
+    post:
+      summary: Modifies the properties sent in the request body
+      tags:
+        - Properties
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModifyPropertiesReq'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModifyPropertiesRes'
+
+components:
+  schemas:
+    AllThreadsResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          threadGroup:
+            type: object
+            properties:
+              scheduler:
+                type: object
+                properties:
+                  duration:
+                    type: integer
+                  delay:
+                    type: integer
+              onErrorStopThread:
+                type: boolean
+              isEnabled:
+                type: boolean
+              onErrorStopTestNow:
+                type: boolean
+              comment:
+                type: string
+              onErrorStartNextLoop:
+                type: boolean
+              rampUp:
+                type: integer
+    SingleThreadResponse:
+      type: object
+      properties:
+        threadGroup:
+          type: object
+          properties:
+            scheduler:
+              type: object
+              properties:
+                duration:
+                  type: integer
+                delay:
+                  type: integer
+            onErrorStopThread:
+              type: boolean
+            isEnabled:
+              type: boolean
+            onErrorStopTestNow:
+              type: boolean
+            comment:
+              type: string
+            onErrorStartNextLoop:
+              type: boolean
+            rampUp:
+              type: integer
+    ModifyThreadRequest:
+      type: object
+      properties:
+        threadNum:
+          type: integer
+          example: 3
+    ModifyThreadResponse:
+      type: object
+      properties:
+        description:
+          type: string
+          example: "Changed number of active threads."
+        threadNum:
+          type: integer
+          example: 3
+        info:
+          type: string
+          example: "success"
+    TestStatus:
+      type: object
+      properties:
+        totalThreads:
+          type: integer
+          example: 8
+        startTime:
+          type: integer
+          example: 1598550485316
+        runningTime:
+          type: integer
+          example: 30
+        totalActiveThreads:
+          type: integer
+          example: 8
+    TestEnd:
+      type: object
+      properties:
+        description:
+          type: string
+          example: "Threads will gracefully stop."
+        info:
+          type: string
+          example: "success"
+    TestSummary:
+      type: array
+      items:
+        type: object
+        properties:
+          averageLatency:
+            type: integer
+            example: 65
+          averageResponseTime:
+            type: integer
+            example: 189
+          minResponseTime:
+            type: integer
+            example: 160
+          maxResponseTime:
+            type: integer
+            example: 503
+          hitsPerSecond:
+            type: number
+            example: 4.98
+          sentBytesPerSecond:
+            type: number
+            example: 1125.41
+          totalErrors:
+            type: integer
+            example: 0
+          errorPercentage:
+            type: number
+            example: 0.0
+          receivedBytesPerSecond:
+            type: number
+            example: 70391.25
+          90thPercentile:
+            type: integer
+            example: 234
+          totalSamples:
+            type: integer
+            example: 162
+          totalBytes:
+            type: integer
+            example: 2289968
+          averageBytes:
+            type: number
+            example: 14135.6
+          standardDeviation:
+            type: number
+            example: 62.85
+    GetVariables:
+      type: object
+      properties:
+        START.MS:
+          type: integer
+          example: 1598550473118
+        TESTSTART.MS:
+          type: integer
+          example: 1598550485316
+        JMeterThread.last_sample_ok:
+          type: boolean
+          example: true
+        all_other_variables_will_show_here:
+          type: boolean
+          example: true
+    ModifyVariablesReq:
+      type: object
+      properties:
+        my_variable_name:
+          type: string
+          example: "my_new_value"
+    ModifyVariablesRes:
+      type: object
+      properties:
+        description:
+          type: string
+          example: "Variables were changed."
+        my_variable_name:
+          type: string
+          example: "my_new_value"
+        info:
+          type: string
+          example: "success"
+    GetProperties:
+      type: object
+      properties:
+        beanshell.server.file:
+          type: string
+          example: "../extras/startup.bsh"
+        cookies:
+          type: string
+          example: "cookies"
+        all_other_properties_will_show_here:
+          type: boolean
+          example: true
+    ModifyPropertiesReq:
+      type: object
+      properties:
+        my_property_name:
+          type: string
+          example: "my_new_value"
+    ModifyPropertiesRes:
+      type: object
+      properties:
+        description:
+          type: string
+          example: "Properties were changed."
+        my_variable_name:
+          type: string
+          example: "my_new_value"
+        info:
+          type: string
+          example: "success"

@@ -39,7 +39,7 @@
 		<java.version>1.9</java.version>
 		<junit.version>4.13.1</junit.version>
 		<junit.jupiter.version>5.0.0</junit.jupiter.version>
-		<junit.vintage.version>${junit.version}.0</junit.vintage.version>
+		<junit.vintage.version>4.12.3</junit.vintage.version>
 		<junit.jupiter.version>5.0.0</junit.jupiter.version>
 		<junit.platform.version>1.0.0</junit.platform.version>
 		<org.apache.jmeter.version>5.3</org.apache.jmeter.version>

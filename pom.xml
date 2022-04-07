@@ -248,23 +248,6 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.10.4</version>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-						<configuration> <!-- add this to disable checking -->
-							<additionalparam>-Xdoclint:none</additionalparam>
-							<detectJavaApiLink>false</detectJavaApiLink>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.19</version>
 				<dependencies>

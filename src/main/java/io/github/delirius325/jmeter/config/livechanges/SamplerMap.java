@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 public class SamplerMap {
     private HashMap<String, ResultHolder> map;
+    private HashMap<String, SampleResult> rawMap;
 
     public SamplerMap(){
         this.map = new HashMap<>();
@@ -20,9 +21,13 @@ public class SamplerMap {
 
         resultHolder.calculate(sr);
         this.map.put(sr.getSampleLabel(), resultHolder);
+        this.rawMap.put(sr.getSampleLabel(), sr);
     }
 
     public HashMap<String, ResultHolder> getMap() {
         return map;
+    }
+    public HashMap<String, SampleResult> getRawMap() {
+        return rawMap;
     }
 }

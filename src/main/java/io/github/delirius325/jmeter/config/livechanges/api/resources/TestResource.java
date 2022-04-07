@@ -5,6 +5,7 @@ import io.github.delirius325.jmeter.config.livechanges.ResultHolder;
 import io.github.delirius325.jmeter.config.livechanges.SamplerMap;
 import io.github.delirius325.jmeter.config.livechanges.helpers.GenericHelper;
 import io.github.delirius325.jmeter.config.livechanges.helpers.JSONHelper;
+import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -83,6 +84,34 @@ public class TestResource {
                 childObject.put("totalBytes", df.format(resultHolder.getCalculator().getTotalBytes()));
                 parentObject.put(sampleLabel, childObject);
                 jsonArray.put(parentObject);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return Response.ok(jsonArray.toString()).build();
+    }
+
+    @GET
+    @Path("/errors")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getTestErrors() {
+        JSONArray jsonArray = new JSONArray();
+        SamplerMap samplerMap = LiveChanges.getSamplerMap();
+        for(Map.Entry<String, SampleResult> entry : samplerMap.getRawMap().entrySet()) {
+            try {
+                SampleResult sr = entry.getValue();
+                if(!sr.isSuccessful()) {
+                    JSONObject parentObject = new JSONObject();
+                    JSONObject childObject = new JSONObject();
+
+                    // construct JSON objects and add to array
+                    childObject.put("errorCode", sr.getResponseCode());
+                    childObject.put("errorMessage", sr.getResponseMessage());
+                    childObject.put("errorData", sr.getResponseDataAsString());
+                    parentObject.put(sr.getSampleLabel(), childObject);
+                    jsonArray.put(parentObject);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

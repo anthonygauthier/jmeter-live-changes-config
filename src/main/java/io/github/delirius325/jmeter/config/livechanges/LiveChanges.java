@@ -1,7 +1,14 @@
 package io.github.delirius325.jmeter.config.livechanges;
 
-import io.github.delirius325.jmeter.config.livechanges.api.App;
-
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.engine.StandardJMeterEngine;
 import org.apache.jmeter.engine.event.LoopIterationEvent;
@@ -17,13 +24,10 @@ import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.apache.jmeter.threads.ThreadGroup;
 import org.apache.jorphan.collections.HashTree;
+import org.apache.jorphan.collections.SearchByClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Properties;
+import io.github.delirius325.jmeter.config.livechanges.api.App;
 
 /**
  * Class that contains executes all the logic for the REST API to communicate with JMeter
@@ -38,16 +42,15 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
 
     // Static Attributes - available to other classes
     private static int staticCalcRate;
-    private static int activeThreads;
     private static JMeterVariables jMeterVariables;
     private static Properties jMeterProperties;
     private static HashSet<ThreadGroup> testThreadGroups = new HashSet<>();
-    private static ThreadGroup activeThreadGroup = new ThreadGroup();
     private static boolean stopTest;
     private static HashTree testPlanTree;
     private static StandardJMeterEngine jMeterEngine;
     private static SamplerMap samplerMap = new SamplerMap();
     private static boolean stopThreadsFromAPI;
+    private static Map<String, Queue<Map<String, Object>>> changeQueueMap = new ConcurrentHashMap<>();
 
     /**
      * Method that is executed when the test has started
@@ -140,12 +143,15 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
      * @param threadName String
      */
     public static void checkForThreadChanges(ThreadGroup threadGroup, LoopIterationEvent event, String threadName) {
-        // this if condition is necessary to verify if we are dealing with the correct thread group
-        if(threadGroup.getName().equals(activeThreadGroup.getName())) {
-            if(activeThreads != threadGroup.numberOfActiveThreads() && event.getIteration() != 1) {
-                int diff = threadGroup.numberOfActiveThreads() - activeThreads;
+        Queue<Map<String, Object>> changeQueue = changeQueueMap.get(threadGroup.getName());
+        if (null != changeQueue) {
+            Map<String, Object> changeMap = changeQueue.poll();
+            if (null != changeMap) {
+                int desiredThreadCount = (int) changeMap.get("threadNum");
 
-                if(diff != 0) {
+                int diff = threadGroup.numberOfActiveThreads() - desiredThreadCount;
+
+                if (diff != 0) {
                     for(int i=0; i < Math.abs(diff); i++) {
                         if(diff < 0) {
                             threadGroup.addNewThread(0, jMeterEngine);
@@ -154,13 +160,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
                             stopThreadsFromAPI = true;
                         }
                     }
-                } else {
-                    // gracefully stop threads
-                    threadGroup.stop();
-                    threadGroup.waitThreadsStopped();
                 }
-            } else {
-                activeThreads = threadGroup.numberOfActiveThreads();
             }
         }
     }
@@ -195,6 +195,22 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     private void startServer() {
         try {
             testPlanTree = SaveService.loadTree(new File(testPlanFile));
+            SearchByClass<ThreadGroup> ts = new SearchByClass<>(ThreadGroup.class);
+            testPlanTree.traverse(ts);
+            // initialize the Map of Queues to keep track of incoming change requests
+            // this only works if the thread group names are unique
+            // we relied on the name for thread group overrides too
+            Collection<ThreadGroup> objs = ts.getSearchResults();
+            if (!objs.isEmpty()) {
+                for (ThreadGroup tg : objs) {
+                    // don't need to track disabled thread group
+                    if (tg.isEnabled()) {
+                        changeQueueMap.putIfAbsent(tg.getName(),
+                                new ConcurrentLinkedDeque<Map<String, Object>>());
+                    }
+                }
+            }
+
             stopTest = false;
             this.app = new App(this.httpServerPort);
             this.app.start();
@@ -220,22 +236,19 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     /**
      * Getters / Setters
      */
+    public static Map<String, Queue<Map<String, Object>>> getChangeQueueMap() {
+        return changeQueueMap;
+    }
     public int getHttpServerPort() {
         return this.httpServerPort;
     }
     public void setHttpServerPort(int port) {
         this.httpServerPort = port;
     }
-    public static int getActiveThreads() {
-        return activeThreads;
-    }
     public static SamplerMap getSamplerMap() { return samplerMap; }
     public static StandardJMeterEngine getjMeterEngine() { return jMeterEngine; }
-    public static ThreadGroup getActiveThreadGroup() { return activeThreadGroup; }
     public static boolean getStopTest() { return stopTest; }
     public static void setStopTest(boolean stop) { stopTest = stop; }
-    public static void setActiveThreadGroup(ThreadGroup tg) { activeThreadGroup = tg; }
-    public static void setActiveThreads(int num) { activeThreads = num;}
     public static JMeterVariables getjMeterVariables() { return jMeterVariables; }
     public static void setjMeterVariables(JMeterVariables vars) { jMeterVariables = vars; }
     public static Properties getjMeterProperties() { return jMeterProperties; }

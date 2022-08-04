@@ -1,15 +1,19 @@
 package io.github.delirius325.jmeter.config.livechanges.api.resources;
 
+import java.io.IOException;
+import java.util.HashMap;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.apache.jmeter.threads.ThreadGroup;
+import org.json.JSONObject;
 import io.github.delirius325.jmeter.config.livechanges.LiveChanges;
 import io.github.delirius325.jmeter.config.livechanges.helpers.JSONHelper;
 import io.github.delirius325.jmeter.config.livechanges.helpers.ThreadGroupHelper;
-import org.apache.jmeter.threads.ThreadGroup;
-import org.json.JSONObject;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
 
 /**
  * Base endpoint for the ThreadResource class
@@ -34,8 +38,13 @@ public class ThreadsResource {
             JSONHelper.jsonSetInfo(json, "error", String.format("Thread Group %s does not exist.", threadGroupName));
             return Response.ok(json.toString()).build();
         }
-        LiveChanges.setActiveThreads(Integer.parseInt(json.get("threadNum").toString()));
-        LiveChanges.setActiveThreadGroup(threadGroup);
+
+        // add incoming thread change request to queue
+        HashMap<String, Object> changeMap = new HashMap<String, Object>();
+        changeMap.put("threadNum", Integer.parseInt(json.get("threadNum").toString()));
+
+        LiveChanges.getChangeQueueMap().get(threadGroupName).add(changeMap);
+
         JSONHelper.jsonSetInfo(json, "success", "Changed number of active threads.");
         return Response.ok(json.toString()).build();
     }

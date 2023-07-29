@@ -30,7 +30,7 @@ public class App {
                 "io.github.delirius325.jmeter.config.livechanges.api.resources"
         );
         try {
-            server.start();
+            this.server.start();
         } catch (Exception e) {
             logger.error("Error occurred while starting embedded Jetty server", e);
             System.exit(1);

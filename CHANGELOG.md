@@ -1,3 +1,15 @@
+## Version 0.0.3
+
+* Fixed #7
+    * `GET /api/threads` now correctly returns the thread groups' information
+* Fixed #15
+    * TravisCI was giving an error since the `openjdk8` agent is no longer available. Now using `openjdk13` as it's the java version used to develop the plugin.
+* Fixed #10
+    * Completely reworked the `GET /api/test/summary` endpoint, most computations now use the `Calculator` class from the JMeter core.
+* The `*.properties` files are now correctly included in the `pom.xml`, text is now correctly shown in JMeter
+* Fixed #13 and #14
+    * Side-fixes of the whole refactoring that was done in 0.0.3
+
 ## Version 0.0.2
 
 * Changed web server to Jetty + JAX-RS (from webbit-server + webbit-rest)
@@ -13,7 +25,6 @@
 
 
 Note: All endpoints require the test to be running to be consumed.
-
 ## Version 0.0.1
 
 * Temporary API documentation in README

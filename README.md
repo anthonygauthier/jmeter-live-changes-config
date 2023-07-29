@@ -1,7 +1,7 @@
 # JMeter Live Changes Config
 
 ## Overview
-This plugin, which is still in an early development stage __(v 0.0.2)__, allows the user to communicate with a RESTful API to change JMeter tests to change values such as:
+This plugin, which is still in an early development stage __(v 0.0.3)__, allows the user to communicate with a RESTful API to change JMeter tests to change values such as:
 
 * Throughput
 * Number of active threads
@@ -43,8 +43,10 @@ Here are some scenarios where this kind of tool becomes very handy:
 As of right now, I am aware of a few limitations;
 
 ### Issues
-* Everything that's not checked on the roadmap is not working.
-* The `GET /api/threads AND /api/threads/{name}` endpoint seem to be returning 0 active threads (will be fixed in 0.0.3)
+* When stopping the test, the API seems to cache sample results. They should be emptied. (#)
+
+++ Everything that's not checked on the roadmap is not working.
+
 
 ### Limitations
 * The `Live Changes Config` __must__ be declared at the root of your `Test Plan`
@@ -118,10 +120,10 @@ __Request__ example:
 __Response__ example :
 ```json
 {
-    "startTime": 0,
-    "runningTime": 0,
-    "totalActiveThreads": 0,
-    "totalThreads": 0
+    "totalThreads": 10,
+    "startTime": 1590694152358,
+    "runningTime": 6,
+    "totalActiveThreads": 10
 }
 ``` 
 
@@ -143,43 +145,39 @@ __Response__ example :
 ```json
 [
     {
-        "testSample": {
-            "averageLatency": 75,
-            "averageResponseTime": 797,
-            "minResponseTime": 0,
-            "maxResponseTime": 417,
-            "hitsPerSecond": 3,
-            "sentBytesPerSecond": 0,
-            "totalErrors": 0,
-            "errorPercentage": 0,
-            "receivedBytesPerSecond": 352,
-            "timeRunning": 4055,
-            "90thPercentile": 349,
-            "totalSamples": 12,
-            "totalBytes": 1368,
-            "averageBytes": 114,
-            "totalSentBytes": 0,
-            "standardDeviation": -554
+        "Google": {
+            "averageLatency": "160",
+            "averageResponseTime": "341",
+            "minResponseTime": "194",
+            "maxResponseTime": "865",
+            "hitsPerSecond": "1.03",
+            "sentBytesPerSecond": "233.54",
+            "totalErrors": "0",
+            "errorPercentage": "0",
+            "receivedBytesPerSecond": "14690.83",
+            "90thPercentile": "477",
+            "totalSamples": "36",
+            "totalBytes": "511799",
+            "averageBytes": "14216.64",
+            "standardDeviation": "156.37"
         }
     },
     {
-        "testSample - 2": {
-            "averageLatency": 98,
-            "averageResponseTime": 955,
-            "minResponseTime": 0,
-            "maxResponseTime": 450,
-            "hitsPerSecond": 3,
-            "sentBytesPerSecond": 0,
-            "totalErrors": 0,
-            "errorPercentage": 0,
-            "receivedBytesPerSecond": 369,
-            "timeRunning": 4055,
-            "90thPercentile": 393,
-            "totalSamples": 13,
-            "totalBytes": 1482,
-            "averageBytes": 114,
-            "totalSentBytes": 0,
-            "standardDeviation": -708
+        "Yahoo": {
+            "averageLatency": "178",
+            "averageResponseTime": "947",
+            "minResponseTime": "492",
+            "maxResponseTime": "6239",
+            "hitsPerSecond": "1.2",
+            "sentBytesPerSecond": "404.12",
+            "totalErrors": "0",
+            "errorPercentage": "0",
+            "receivedBytesPerSecond": "172374.09",
+            "90thPercentile": "1422",
+            "totalSamples": "42",
+            "totalBytes": "6055157",
+            "averageBytes": "144170.4",
+            "standardDeviation": "896.6"
         }
     }
 ]

@@ -28,7 +28,7 @@ Here are some scenarios where this kind of tool becomes very handy:
 - [ ] Support for native distributed load testing
 - [ ] Support for distributed load testing through multiple injectors executing the same test
 - [ ] Initial documentation of the REST API
-- [ ] Restructure code-base so it's easier to read and maintain
+- [x] Restructure code-base so it's easier to read and maintain
 - [ ] Publish version __1.0.0__ to [JMeter-Plugins](https://jmeter-plugins.org/)
 
 ## Known issues/limitations

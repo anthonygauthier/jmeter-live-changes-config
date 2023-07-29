@@ -1,10 +1,13 @@
 package io.github.delirius325.jmeter.config.livechanges;
 
 import io.github.delirius325.jmeter.config.livechanges.api.App;
+
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.engine.StandardJMeterEngine;
 import org.apache.jmeter.engine.event.LoopIterationEvent;
 import org.apache.jmeter.engine.event.LoopIterationListener;
+import org.apache.jmeter.samplers.SampleEvent;
+import org.apache.jmeter.samplers.SampleListener;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.services.FileServer;
 import org.apache.jmeter.testbeans.TestBean;
@@ -23,12 +26,13 @@ import java.util.Properties;
 /**
  * Class that contains executes all the logic for the REST API to communicate with JMeter
  */
-public class LiveChanges extends ConfigTestElement implements TestBean, LoopIterationListener, TestStateListener {
+public class LiveChanges extends ConfigTestElement implements TestBean, LoopIterationListener, TestStateListener, SampleListener {
     private static final String testPlanFile = String.format("%s/%s", FileServer.getFileServer().getBaseDir(), FileServer.getFileServer().getScriptName());
     private static final Logger logger = LoggerFactory.getLogger(LiveChanges.class);
 
     private App app;
     private int httpServerPort;
+    private int calculationRate;
     private static int activeThreads;
     private static JMeterVariables jMeterVariables;
     private static Properties jMeterProperties;
@@ -36,6 +40,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     private static boolean stopTest;
     private static HashTree testPlanTree;
     private static StandardJMeterEngine jMeterEngine;
+    private static SamplerMap samplerMap = new SamplerMap();
 
     /**
      * Method that is executed when the test has started
@@ -97,6 +102,17 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
         this.checkForThreadChanges(threadGroup, event, threadName);
         this.checkForVariableChanges(vars, event);
         this.checkForPropertyChanges(props, event);
+    }
+
+    @Override
+    public void sampleStopped(SampleEvent sampleEvent) { }
+
+    @Override
+    public void sampleStarted(SampleEvent sampleEvent) { }
+
+    @Override
+    public void sampleOccurred(SampleEvent sampleEvent) {
+        samplerMap.add(sampleEvent.getResult());
     }
 
     /**
@@ -190,9 +206,16 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     public void setHttpServerPort(int port) {
         this.httpServerPort = port;
     }
+    public int getCalculationRate() {
+        return calculationRate;
+    }
+    public void setCalculationRate(int rate) {
+        this.calculationRate = rate;
+    }
     public static int getActiveThreads() {
         return activeThreads;
     }
+    public static SamplerMap getSamplerMap() { return samplerMap; }
     public static StandardJMeterEngine getjMeterEngine() { return jMeterEngine; }
     public static ThreadGroup getActiveThreadGroup() { return activeThreadGroup; }
     public static boolean getStopTest() { return stopTest; }

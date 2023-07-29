@@ -1,7 +1,7 @@
 package io.github.delirius325.jmeter.config.livechanges.api.resources;
 
 import io.github.delirius325.jmeter.config.livechanges.LiveChanges;
-import io.github.delirius325.jmeter.config.livechanges.utils.JSONHelper;
+import io.github.delirius325.jmeter.config.livechanges.helpers.JSONHelper;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.json.JSONObject;
 

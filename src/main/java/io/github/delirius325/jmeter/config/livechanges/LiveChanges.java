@@ -95,11 +95,8 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     public void checkForPropertyChanges(Properties props, LoopIterationEvent event) {
         if(event.getIteration() == 1) {
             jMeterProperties = props;
-        } else {
-//            JMeterContextService.getContext().setVariables(jmete);
         }
     }
-
 
 
     /**
@@ -120,5 +117,4 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     public static JMeterVariables getjMeterVariables() { return jMeterVariables; }
     public static void setjMeterVariables(JMeterVariables vars) { jMeterVariables = vars; }
     public static Properties getjMeterProperties() { return jMeterProperties; }
-    public static void setjMeterProperties(Properties props) { jMeterProperties = props; }
 }

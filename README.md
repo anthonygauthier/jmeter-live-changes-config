@@ -23,7 +23,8 @@ Here are some scenarios where this kind of tool becomes very handy:
 - [x] Get variables
 - [x] Modify variables
 - [x] Get properties
-- [ ] Modify properties
+- [x] Modify properties
+- [ ] Support for multiple `Thread Group`
 - [ ] Support for native distributed load testing
 - [ ] Support for distributed load testing through multiple injectors executing the same test
 - [ ] Initial documentation of the REST API

@@ -25,7 +25,7 @@ public class TestAppServer {
     @Test
     public void testServerConnectivity() {
         try {
-            HttpResponse<String> response = Unirest.get(APP_ADDRESS + "/api/test/connectivity").asString();
+            HttpResponse<String> response = Unirest.get(APP_ADDRESS + "/v1/healthcheck").asString();
             System.out.println(response.getBody());
             assertTrue(response.getBody().contains("connected"));
         } catch (Exception e) {

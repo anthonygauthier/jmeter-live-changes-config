@@ -76,16 +76,14 @@ public class App {
             @Override
             public void handleHttpRequest(HttpRequest request, HttpResponse response, HttpControl control) throws Exception {
                 JSONObject json = new JSONObject(request.body());
-                JMeterVariables originalVars = LiveChanges.getjMeterVariables();
-                JMeterVariables newVars = new JMeterVariables();
-
-                originalVars.entrySet().forEach(entry -> {
-                    newVars.put(entry.getKey(), entry.getValue().toString());
+                JMeterVariables vars = LiveChanges.getjMeterVariables();
+                vars.entrySet().forEach(entry -> {
                     if(json.has(entry.getKey()) && (json.get(entry.getKey()) != entry.getValue().toString())) {
                         json.put(entry.getKey(), json.get(entry.getKey()));
+                        vars.put(entry.getKey(), json.get(entry.getKey()).toString());
                     }
                 });
-                LiveChanges.setjMeterVariables(newVars);
+                LiveChanges.setjMeterVariables(vars);
                 jsonSetInfo(json, "success", "Variables were changed.");
                 response.content(json.toString()).header("Content-Type", "application/json").end();
             }

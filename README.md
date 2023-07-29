@@ -1,8 +1,5 @@
 # JMeter Live Changes Config
 
-### Support the author
-[![patreon](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/bePatron?u=17797269)
-
 ## Overview
 This plugin, which is still in an early development stage __(v 0.0.2)__, allows the user to communicate with a RESTful API to change JMeter tests to change values such as:
 
@@ -10,6 +7,12 @@ This plugin, which is still in an early development stage __(v 0.0.2)__, allows 
 * Number of active threads
 * Variables
 * Properties
+
+It also allows the user to do the following things
+
+* View a summary of the test results
+* End the test remotely
+* Retrieve a quick status of the test (time running, active threads, etc.)
 
 ## Why
 Here are some scenarios where this kind of tool becomes very handy:
@@ -29,11 +32,11 @@ Here are some scenarios where this kind of tool becomes very handy:
 - [x] Modify properties
 - [x] Support for multiple `Thread Group`
 - [ ] Support for native distributed load testing
-- [ ] Support for distributed load testing through multiple injectors executing the same test
 - [x] Initial documentation of the REST API
 - [x] Restructure code-base so it's easier to read and maintain
 - [ ] Generate a Swagger (or some sort of API docs)
 - [ ] Publish version __1.0.0__ to [JMeter-Plugins](https://jmeter-plugins.org/)
+- [ ] Publish plugin to Maven Central
 
 ## Known issues/limitations
 

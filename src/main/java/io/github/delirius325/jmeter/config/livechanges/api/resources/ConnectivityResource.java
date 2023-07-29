@@ -6,12 +6,19 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+/**
+ * Base endpoint for the ConnectivityResource class
+ */
 @Path("/test")
 public class ConnectivityResource {
+    /**
+     * A simple endpoint testing the connectivity to the API
+     * @return
+     */
     @GET
     @Path("/connectivity")
     @Produces(MediaType.TEXT_PLAIN)
-    public String getVariables(@PathParam("param") String name) {
+    public String getConnected() {
         return "connected";
     }
 }

@@ -65,7 +65,7 @@ public class VariablesResource {
             }
         });
         LiveChanges.setjMeterVariables(vars);
-        JSONHelper.jsonSetInfo(json, "success", "VariablesResource were changed.");
+        JSONHelper.jsonSetInfo(json, "success", "Variables were changed.");
         return Response.ok(json.toString()).build();
     }
 }

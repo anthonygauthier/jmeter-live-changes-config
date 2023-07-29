@@ -31,9 +31,12 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     private static final String testPlanFile = String.format("%s/%s", FileServer.getFileServer().getBaseDir(), FileServer.getFileServer().getScriptName());
     private static final Logger logger = LoggerFactory.getLogger(LiveChanges.class);
 
+    // Class attributes
     private App app;
-    private int httpServerPort;
-    private int calculationRate;
+    private Integer httpServerPort;
+
+    // Static Attributes - available to other classes
+    private static int staticCalcRate;
     private static int activeThreads;
     private static JMeterVariables jMeterVariables;
     private static Properties jMeterProperties;
@@ -211,12 +214,6 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     public void setHttpServerPort(int port) {
         this.httpServerPort = port;
     }
-    public int getCalculationRate() {
-        return this.calculationRate;
-    }
-    public void setCalculationRate(int rate) {
-        this.calculationRate = rate;
-    }
     public static int getActiveThreads() {
         return activeThreads;
     }
@@ -233,4 +230,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     public static HashTree getTestPlanTree() { return testPlanTree; }
     public static HashSet<ThreadGroup> getTestThreadGroups() { return testThreadGroups; }
     public static void setTestThreadGroups(HashSet<ThreadGroup> threadGroupHashSet) { LiveChanges.testThreadGroups = threadGroupHashSet; }
- }
+    public static int getStaticCalcRate() { return staticCalcRate; }
+    public static void setStaticCalcRate(int staticCalcRate) { LiveChanges.staticCalcRate = staticCalcRate; }
+
+}

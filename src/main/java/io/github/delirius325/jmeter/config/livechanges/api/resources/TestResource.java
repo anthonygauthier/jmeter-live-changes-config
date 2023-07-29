@@ -3,6 +3,7 @@ package io.github.delirius325.jmeter.config.livechanges.api.resources;
 import io.github.delirius325.jmeter.config.livechanges.LiveChanges;
 import io.github.delirius325.jmeter.config.livechanges.ResultHolder;
 import io.github.delirius325.jmeter.config.livechanges.SamplerMap;
+import io.github.delirius325.jmeter.config.livechanges.helpers.GenericHelper;
 import io.github.delirius325.jmeter.config.livechanges.helpers.JSONHelper;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.json.JSONArray;
@@ -13,6 +14,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.text.DecimalFormat;
 import java.util.Map;
 
 /**
@@ -30,7 +32,7 @@ public class TestResource {
     public Response getTestStatus() {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("startTime", JMeterContextService.getTestStartTime());
-        jsonObject.put("runningTime", System.currentTimeMillis() - JMeterContextService.getTestStartTime());
+        jsonObject.put("runningTime", GenericHelper.getTestTimeElapsedSec());
         jsonObject.put("totalActiveThreads", JMeterContextService.getNumberOfThreads());
         jsonObject.put("totalThreads", JMeterContextService.getTotalThreads());
         return Response.ok(jsonObject.toString()).build();
@@ -58,28 +60,27 @@ public class TestResource {
         SamplerMap samplerMap = LiveChanges.getSamplerMap();
         for(Map.Entry<String, ResultHolder> entry : samplerMap.getMap().entrySet()) {
             try {
+                DecimalFormat df = new DecimalFormat("#.##");
                 JSONObject parentObject = new JSONObject();
                 JSONObject childObject = new JSONObject();
                 ResultHolder resultHolder = entry.getValue();
-                String sampleLabel = entry.getKey();
+                String sampleLabel = resultHolder.getCalculator().getLabel();
 
                 // construct JSON objects and add to array
-                childObject.put("averageBytes", resultHolder.getAvgBytes());
-                childObject.put("averageLatency", resultHolder.getAvgLatency());
-                childObject.put("averageResponseTime", resultHolder.getAvgResponseTime());
-                childObject.put("errorPercentage", resultHolder.getErrorPercentage());
-                childObject.put("hitsPerSecond", resultHolder.getHitsPerSecond());
-                childObject.put("minResponseTime", resultHolder.getMinResponseTime());
-                childObject.put("maxResponseTime", resultHolder.getMaxResponseTime());
-                childObject.put("90thPercentile", resultHolder.getNinetyPercentile());
-                childObject.put("standardDeviation", resultHolder.getStdDeviation());
-                childObject.put("sentBytesPerSecond", resultHolder.getSentBytesPerSec());
-                childObject.put("receivedBytesPerSecond", resultHolder.getReceivedBytesPerSec());
-                childObject.put("totalSamples", resultHolder.getTotalSamples());
-                childObject.put("totalErrors", resultHolder.getTotalErrors());
-                childObject.put("totalBytes", resultHolder.getTotalBytes());
-                childObject.put("totalSentBytes", resultHolder.getTotalSentBytes());
-                childObject.put("timeRunning", (System.currentTimeMillis() - JMeterContextService.getTestStartTime()));
+                childObject.put("averageBytes", df.format(resultHolder.getCalculator().getAvgPageBytes()));
+                childObject.put("averageLatency", df.format(resultHolder.getAvgLatency()));
+                childObject.put("averageResponseTime", df.format(resultHolder.getCalculator().getMeanAsNumber()));
+                childObject.put("errorPercentage", df.format(resultHolder.getCalculator().getErrorPercentage()));
+                childObject.put("hitsPerSecond", df.format(resultHolder.getCalculator().getRate()));
+                childObject.put("minResponseTime", df.format(resultHolder.getCalculator().getMin()));
+                childObject.put("maxResponseTime", df.format(resultHolder.getCalculator().getMax()));
+                childObject.put("90thPercentile", df.format(resultHolder.getNinetiethPercentile()));
+                childObject.put("standardDeviation", df.format(resultHolder.getCalculator().getStandardDeviation()));
+                childObject.put("sentBytesPerSecond", df.format(resultHolder.getCalculator().getSentBytesPerSecond()));
+                childObject.put("receivedBytesPerSecond", df.format(resultHolder.getCalculator().getBytesPerSecond()));
+                childObject.put("totalSamples", df.format(resultHolder.getCalculator().getCount()));
+                childObject.put("totalErrors", df.format(resultHolder.getTotalErrors()));
+                childObject.put("totalBytes", df.format(resultHolder.getCalculator().getTotalBytes()));
                 parentObject.put(sampleLabel, childObject);
                 jsonArray.put(parentObject);
             } catch (Exception e) {

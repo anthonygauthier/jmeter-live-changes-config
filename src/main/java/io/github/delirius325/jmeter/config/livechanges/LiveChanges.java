@@ -26,7 +26,9 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
 
     @Override
     public void testStarted() {
+
         this.startServer();
+
     }
 
     @Override
@@ -36,12 +38,12 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
 
     @Override
     public void testEnded() {
-        this.app.stop();
+        finalizeTest();
     }
 
     @Override
     public void testEnded(String host) {
-        this.app.stop();
+        finalizeTest();
     }
 
     @Override
@@ -98,6 +100,13 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
         }
     }
 
+    private void finalizeTest() {
+        try {
+            this.app.stop();
+        } catch (Exception e) {
+            logger.error("Unable to correctly shutdown Jetty server", e);
+        }
+    }
 
     /**
      * Getters / Setters

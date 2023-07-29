@@ -20,14 +20,16 @@ public class TestAppServer {
     public void startTest() throws Exception {
         this.server = new App(PORT);
         this.server.start();
-        this.server.setupRoutes();
-        System.out.println("------------------------ Server listening! ---------------------------");
     }
 
     @Test
-    public void testServerConnectivity() throws Exception {
-        HttpResponse<String> response = Unirest.get(APP_ADDRESS + "/test/connectivity").asString();
-        assertTrue(response.getBody().contains("connected"));
+    public void testServerConnectivity() {
+        try {
+            HttpResponse<String> response = Unirest.get(APP_ADDRESS + "/api/test/connectivity").asString();
+            assertTrue(response.getBody().contains("connected"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @After

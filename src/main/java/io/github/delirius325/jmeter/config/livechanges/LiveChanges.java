@@ -1,8 +1,8 @@
 package io.github.delirius325.jmeter.config.livechanges;
 
 import io.github.delirius325.jmeter.config.livechanges.api.App;
+import org.apache.jmeter.JMeter;
 import org.apache.jmeter.config.ConfigTestElement;
-import org.apache.jmeter.engine.StandardJMeterEngine;
 import org.apache.jmeter.engine.event.LoopIterationEvent;
 import org.apache.jmeter.engine.event.LoopIterationListener;
 import org.apache.jmeter.testbeans.TestBean;
@@ -58,7 +58,6 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     private void startServer() {
         this.app = new App(this.httpServerPort);
         this.app.start();
-        logger.info(String.format("Exposed API on port %d", this.httpServerPort));
     }
 
     public void checkForThreadChanges(ThreadGroup threadGroup, LoopIterationEvent event, String threadName) {

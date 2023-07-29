@@ -6,12 +6,14 @@ import org.apache.jmeter.engine.StandardJMeterEngine;
 import org.apache.jmeter.engine.event.LoopIterationEvent;
 import org.apache.jmeter.engine.event.LoopIterationListener;
 import org.apache.jmeter.testbeans.TestBean;
-import org.apache.jmeter.testelement.TestIterationListener;
 import org.apache.jmeter.testelement.TestStateListener;
 import org.apache.jmeter.threads.JMeterContextService;
+import org.apache.jmeter.threads.JMeterVariables;
 import org.apache.jmeter.threads.ThreadGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Properties;
 
 public class LiveChanges extends ConfigTestElement implements TestBean, LoopIterationListener, TestStateListener {
     private static final Logger logger = LoggerFactory.getLogger(LiveChanges.class);
@@ -19,6 +21,8 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     private App app;
     private int httpServerPort;
     private static int activeThreads;
+    private static JMeterVariables jMeterVariables;
+    private static Properties jMeterProperties;
 
     @Override
     public void testStarted() {
@@ -40,22 +44,17 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
         this.app.stop();
     }
 
-    // On loop iteration
     @Override
     public void iterationStart(LoopIterationEvent event) {
         ThreadGroup threadGroup = (ThreadGroup) JMeterContextService.getContext().getThreadGroup();
+        JMeterVariables vars = JMeterContextService.getContext().getVariables();
+        Properties props = JMeterContextService.getContext().getProperties();
         String tmp = JMeterContextService.getContext().getThread().getThreadName();
         String threadName = tmp.substring(0, tmp.lastIndexOf("-"));
+
         this.checkForThreadChanges(threadGroup, event, threadName);
-    }
-
-
-    public synchronized int getHttpServerPort() {
-        return this.httpServerPort;
-    }
-
-    public synchronized void setHttpServerPort(int port) {
-        this.httpServerPort = port;
+        this.checkForVariableChanges(vars, event);
+        this.checkForPropertyChanges(props, event);
     }
 
     private void startServer() {
@@ -87,14 +86,33 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
         }
     }
 
+    public void checkForVariableChanges(JMeterVariables vars, LoopIterationEvent event) {
+        jMeterVariables = vars;
+        JMeterContextService.getContext().setVariables(jMeterVariables);
+    }
+    public void checkForPropertyChanges(Properties props, LoopIterationEvent event) {
+        jMeterProperties = props;
+    }
+
+
 
     /**
      * Getters / Setters
      */
+    public int getHttpServerPort() {
+        return this.httpServerPort;
+    }
+    public void setHttpServerPort(int port) {
+        this.httpServerPort = port;
+    }
     public static int getActiveThreads() {
         return activeThreads;
     }
     public static void setActiveThreads(int num) {
         activeThreads = num;
     }
+    public static JMeterVariables getjMeterVariables() { return jMeterVariables; }
+    public static void setjMeterVariables(JMeterVariables vars) { jMeterVariables = vars; }
+    public static Properties getjMeterProperties() { return jMeterProperties; }
+    public static void setjMeterProperties(Properties props) { jMeterProperties = props; }
 }

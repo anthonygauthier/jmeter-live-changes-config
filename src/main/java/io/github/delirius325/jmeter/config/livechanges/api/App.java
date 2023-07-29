@@ -2,6 +2,7 @@ package io.github.delirius325.jmeter.config.livechanges.api;
 
 import io.github.delirius325.jmeter.config.livechanges.LiveChanges;
 import org.apache.jmeter.threads.JMeterContext;
+import org.apache.jmeter.threads.JMeterVariables;
 import org.json.JSONObject;
 import org.webbitserver.*;
 import org.webbitserver.netty.NettyWebServer;
@@ -20,6 +21,9 @@ public class App {
     }
 
     public void setupRoutes() {
+        /**
+         * GET ROUTES
+         */
         this.rest.GET("/test/connectivity", new HttpHandler() {
             @Override
             public void handleHttpRequest(HttpRequest request, HttpResponse response, HttpControl control) throws Exception {
@@ -34,25 +38,63 @@ public class App {
                 response.content(json.toString()).header("Content-Type","application/json").end();
             }
         });
+        this.rest.GET("/variables", new HttpHandler() {
+            @Override
+            public void handleHttpRequest(HttpRequest request, HttpResponse response, HttpControl control) throws Exception {
+                JSONObject json = new JSONObject();
+                LiveChanges.getjMeterVariables().entrySet().forEach(entry -> {
+                    json.put(entry.getKey(), entry.getValue().toString());
+                });
+                response.content(json.toString()).header("Content-Type", "application/json").end();
+            }
+        });
+        this.rest.GET("/properties", new HttpHandler() {
+            @Override
+            public void handleHttpRequest(HttpRequest request, HttpResponse response, HttpControl control) throws Exception {
+                JSONObject json = new JSONObject();
+                LiveChanges.getjMeterProperties().entrySet().forEach(entry -> {
+                    json.put(entry.getKey().toString(), entry.getValue().toString());
+                });
+                response.content(json.toString()).header("Content-Type", "application/json").end();
+            }
+        });
+
+
+        /**
+         * POST ROUTES
+         */
         this.rest.POST("/threads", new HttpHandler() {
             @Override
             public void handleHttpRequest(HttpRequest request, HttpResponse response, HttpControl control) throws Exception {
                 JSONObject json = new JSONObject(request.body());
                 LiveChanges.setActiveThreads(Integer.parseInt(json.get("threadNum").toString()));
-                json.put("info", "success");
-                json.put("description", "Changed number of active threads");
+                jsonSetInfo(json, "success", "Changed number of active threads.");
                 response.content(json.toString()).header("Content-Type", "application/json").end();
             }
         });
-        this.rest.GET("/variables", new HttpHandler() {
+        this.rest.POST("/variables", new HttpHandler() {
             @Override
             public void handleHttpRequest(HttpRequest request, HttpResponse response, HttpControl control) throws Exception {
-                JSONObject json = new JSONObject();
-//                Threads threads = new Threads();
-//                threads.getVariables();
+                JSONObject json = new JSONObject(request.body());
+                JMeterVariables originalVars = LiveChanges.getjMeterVariables();
+                JMeterVariables newVars = new JMeterVariables();
+
+                originalVars.entrySet().forEach(entry -> {
+                    newVars.put(entry.getKey(), entry.getValue().toString());
+                    if(json.has(entry.getKey()) && (json.get(entry.getKey()) != entry.getValue().toString())) {
+                        json.put(entry.getKey(), json.get(entry.getKey()));
+                    }
+                });
+                LiveChanges.setjMeterVariables(newVars);
+                jsonSetInfo(json, "success", "Variables were changed.");
                 response.content(json.toString()).header("Content-Type", "application/json").end();
             }
         });
+    }
+
+    public void jsonSetInfo(JSONObject obj, String info, String description) {
+        obj.put("info", info);
+        obj.put("description", description);
     }
 
     /**

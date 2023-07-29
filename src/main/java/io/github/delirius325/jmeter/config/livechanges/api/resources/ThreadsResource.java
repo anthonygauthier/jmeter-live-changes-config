@@ -21,7 +21,7 @@ public class ThreadsResource {
      * @param request - The user's request
      * @param threadGroupName - The ThreadGroup specified in the URL
      * @return A stringified JSONObject as the Response
-     * @throws IOException
+     * @throws IOException Throws an IOException if an error occurs during method execution
      */
     @POST
     @Path("{name}")

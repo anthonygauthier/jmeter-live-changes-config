@@ -7,9 +7,9 @@ import org.apache.jorphan.collections.HashTree;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Class that contains static methods to manipulate Thread Groups and retrieve information
@@ -19,19 +19,10 @@ public class ThreadGroupHelper {
      * Static method that retrieves Thread Groups from the test tree
      * @return Set of ThreadGroup objects
      */
-    private static Set<ThreadGroup> getThreadGroups() {
-        HashSet<ThreadGroup> threadGroups = new HashSet<>();
-        HashTree testPlanTree = LiveChanges.getTestPlanTree();
-        for (Map.Entry entry : testPlanTree.entrySet()) {
-            if (entry.getKey() instanceof TestPlan) {
-                HashTree testPlan = (HashTree) entry.getValue();
-
-                for (Map.Entry element : testPlan.entrySet()) {
-                    if(element.getKey() instanceof ThreadGroup) {
-                        threadGroups.add((ThreadGroup) element.getKey());
-                    }
-                }
-            }
+    private static HashMap<String, ThreadGroup> getThreadGroups() {
+        HashMap<String, ThreadGroup> threadGroups = new HashMap<>();
+        for(ThreadGroup threadGroup : LiveChanges.getTestThreadGroups()) {
+            threadGroups.put(threadGroup.getName(), threadGroup);
         }
         return threadGroups;
     }
@@ -42,10 +33,9 @@ public class ThreadGroupHelper {
      * @return A single ThreadGroup object
      */
     public static ThreadGroup getThreadGroup(String threadGroupName) {
-        for(ThreadGroup threadGroup : getThreadGroups()) {
-            if(threadGroup.getName().equalsIgnoreCase(threadGroupName)) {
-                return threadGroup;
-            }
+        HashMap<String, ThreadGroup> threadGroups = getThreadGroups();
+        if(threadGroups.containsKey(threadGroupName)) {
+            return threadGroups.get(threadGroupName);
         }
         return null;
     }
@@ -66,8 +56,8 @@ public class ThreadGroupHelper {
      */
     public static JSONArray getAllThreadGroupsAsJSON() {
         JSONArray jsonArray = new JSONArray();
-        for(ThreadGroup threadGroup : getThreadGroups()) {
-            jsonArray.put(createThreadGroupObject(threadGroup));
+        for(Map.Entry entry : getThreadGroups().entrySet()) {
+            jsonArray.put(createThreadGroupObject((ThreadGroup) entry.getValue()));
         }
 
         return jsonArray;
@@ -82,12 +72,21 @@ public class ThreadGroupHelper {
         if(threadGroup != null) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("name", threadGroup.getName());
-            jsonObject.put("delay", threadGroup.getDelay());
-            jsonObject.put("duration", threadGroup.getDuration());
             jsonObject.put("rampUp", threadGroup.getRampUp());
-            jsonObject.put("scheduler", threadGroup.getScheduler());
             jsonObject.put("isEnabled", threadGroup.isEnabled());
             jsonObject.put("active", threadGroup.numberOfActiveThreads());
+            jsonObject.put("comment", threadGroup.getComment());
+            jsonObject.put("getOnErrorStartNextLoop",  threadGroup.getOnErrorStartNextLoop());
+            jsonObject.put("getOnErrorStopTest",  threadGroup.getOnErrorStopTest());
+            jsonObject.put("getOnErrorStopTestNow",  threadGroup.getOnErrorStopTestNow());
+            jsonObject.put("getOnErrorStopThread",  threadGroup.getOnErrorStopThread());
+
+            if(threadGroup.getScheduler()) {
+                JSONObject schedulerObject = new JSONObject();
+                schedulerObject.put("delay", threadGroup.getDelay());
+                schedulerObject.put("duration", threadGroup.getDuration());
+                jsonObject.put("scheduler", schedulerObject);
+            }
             return jsonObject;
         }
         return new JSONObject();

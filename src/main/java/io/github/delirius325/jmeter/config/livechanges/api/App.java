@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  * The App object is the server on which the LiveChanges API is held and exposed
  */
 public class App {
-    private static final Logger logger = LoggerFactory.getLogger(LiveChanges.class);
+    private static final Logger logger = LoggerFactory.getLogger(App.class);
 
     private Server server;
     private int port;

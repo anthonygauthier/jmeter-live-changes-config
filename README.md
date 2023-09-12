@@ -36,7 +36,7 @@ For example;
 7. By using any HTTP client (Postman, Insomnia, cURL, etc.) communicate with the REST API to change your test's values
 
 ## Documentation
-An API documentation [is available here](https://delirius325.github.io/jmeter-live-changes-config/), it is directly generated from the [swagger.yaml](docs/swagger.yaml).
+An API documentation [is available here](https://anthonygauthier.github.io/jmeter-live-changes-config/), it is directly generated from the [swagger.yaml](docs/swagger.yaml).
 
 ---
 

@@ -10,6 +10,7 @@ public class SamplerMap {
 
     public SamplerMap(){
         this.map = new HashMap<>();
+        this.rawMap = new HashMap<>();
     }
 
     public void add(SampleResult sr) {

@@ -31,6 +31,15 @@ public class ThreadsResource {
     @Path("{name}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response modifySpecificThread(String request, @PathParam("name") String threadGroupName) throws IOException {
+        if (LiveChanges.getRuntimeState().isDistributedController()) {
+            return Response.ok(
+                    LiveChanges.getDistributedCommandRouter()
+                            .postJson(LiveChanges.getRuntimeState(), LiveChanges.getConfiguredHttpServerPort(),
+                                    "/threads/" + threadGroupName, request, "threads.update")
+                            .toString()
+            ).build();
+        }
+
         JSONObject json = new JSONObject(request);
         ThreadGroup threadGroup = ThreadGroupHelper.getThreadGroup(threadGroupName);
         if(threadGroup == null) {
@@ -56,6 +65,13 @@ public class ThreadsResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getThreads() {
+        if (LiveChanges.getRuntimeState().isDistributedController()) {
+            return Response.ok(
+                    LiveChanges.getDistributedReadAggregator()
+                            .aggregateThreads(LiveChanges.getRuntimeState(), LiveChanges.getConfiguredHttpServerPort(), "/threads")
+                            .toString()
+            ).build();
+        }
         return Response.ok(ThreadGroupHelper.getAllThreadGroupsAsJSON().toString()).build();
     }
 
@@ -68,6 +84,13 @@ public class ThreadsResource {
     @Path("{name}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getThread(@PathParam("name") String threadGroupName) {
+        if (LiveChanges.getRuntimeState().isDistributedController()) {
+            return Response.ok(
+                    LiveChanges.getDistributedReadAggregator()
+                            .aggregateThreads(LiveChanges.getRuntimeState(), LiveChanges.getConfiguredHttpServerPort(), "/threads/" + threadGroupName)
+                            .toString()
+            ).build();
+        }
         JSONObject jsonObject = ThreadGroupHelper.getThreadGroupAsJSON(threadGroupName);
         if(jsonObject.keySet().size() < 1) {
             JSONHelper.jsonSetInfo(jsonObject, "error", String.format("Thread Group %s does not exist.", threadGroupName));

@@ -56,6 +56,15 @@ public class VariablesResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response postVariables(String request) {
+        if (LiveChanges.getRuntimeState().isDistributedController()) {
+            return Response.ok(
+                    LiveChanges.getDistributedCommandRouter()
+                            .postJson(LiveChanges.getRuntimeState(), LiveChanges.getConfiguredHttpServerPort(),
+                                    "/variables", request, "variables.update")
+                            .toString()
+            ).build();
+        }
+
         JSONObject json = new JSONObject(request);
         JMeterVariables vars = LiveChanges.getjMeterVariables();
         vars.entrySet().forEach(entry -> {

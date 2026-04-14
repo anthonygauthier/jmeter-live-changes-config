@@ -28,6 +28,9 @@ import org.apache.jorphan.collections.SearchByClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.github.delirius325.jmeter.config.livechanges.api.App;
+import io.github.delirius325.jmeter.config.livechanges.distributed.DistributedCommandRouter;
+import io.github.delirius325.jmeter.config.livechanges.distributed.DistributedReadAggregator;
+import io.github.delirius325.jmeter.config.livechanges.distributed.HttpWorkerClient;
 
 /**
  * Class that contains executes all the logic for the REST API to communicate with JMeter
@@ -39,6 +42,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     // Class attributes
     private App app;
     private Integer httpServerPort;
+    private static Integer configuredHttpServerPort;
 
     // Static Attributes - available to other classes
     private static int staticCalcRate;
@@ -51,6 +55,9 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     private static SamplerMap samplerMap = new SamplerMap();
     private static boolean stopThreadsFromAPI;
     private static Map<String, Queue<Map<String, Object>>> changeQueueMap = new ConcurrentHashMap<>();
+    private static RuntimeState runtimeState = new RuntimeState();
+    private static DistributedCommandRouter distributedCommandRouter = new DistributedCommandRouter(new HttpWorkerClient());
+    private static DistributedReadAggregator distributedReadAggregator = new DistributedReadAggregator(new HttpWorkerClient());
 
     /**
      * Method that is executed when the test has started
@@ -58,6 +65,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     @Override
     public void testStarted() {
         samplerMap = new SamplerMap();
+        runtimeState.resetForTestStart();
         this.startServer();
     }
 
@@ -66,7 +74,14 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
      * @param host String
      */
     @Override
-    public void testStarted(String host) { }
+    public void testStarted(String host) {
+        // Remote test runs surface here on the controller, whereas worker-side listener callbacks
+        // are not reliable enough to be the only distributed-mode activation path.
+        runtimeState.registerRemoteHost(host);
+        if (!runtimeState.isApiStarted()) {
+            this.startServer();
+        }
+    }
 
     /**
      * Method that is executed when the test has ended
@@ -85,7 +100,9 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
      * @param host String
      */
     @Override
-    public void testEnded(String host) { }
+    public void testEnded(String host) {
+        runtimeState.registerRemoteHost(host);
+    }
 
     /**
      * Method that is executed upon every thread iteration of the JMeter script
@@ -193,6 +210,9 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
      * Method that initiate the server and sets attributes (testPlanTree, stopTest)
      */
     private void startServer() {
+        if (runtimeState.isApiStarted()) {
+            return;
+        }
         try {
             testPlanTree = SaveService.loadTree(new File(testPlanFile));
             SearchByClass<ThreadGroup> ts = new SearchByClass<>(ThreadGroup.class);
@@ -214,9 +234,14 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
             stopTest = false;
             this.app = new App(this.httpServerPort);
             this.app.start();
+            runtimeState.markApiStarted();
         } catch (IOException e) {
+            runtimeState.markStartupFailure("LiveChanges was unable to load the test plan tree.");
             logger.error("LiveChanges was unable to load the test plan tree. More info in JMeter's console.");
             e.printStackTrace();
+        } catch (Exception e) {
+            runtimeState.markStartupFailure("LiveChanges was unable to start the embedded API server.");
+            logger.error("LiveChanges was unable to start the embedded API server. More info in JMeter's console.", e);
         }
     }
 
@@ -225,8 +250,13 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
      */
     private void finalizeTest() {
         try {
-            jMeterEngine.stopTest(true);
-            this.app.stop();
+            if (jMeterEngine != null) {
+                jMeterEngine.stopTest(true);
+            }
+            if (this.app != null && runtimeState.isApiStarted()) {
+                this.app.stop();
+            }
+            runtimeState.resetForTestStart();
             logger.info("LiveChanges API was successfully stopped.");
         } catch (Exception e) {
             logger.error("LiveChanges was unable to correctly shutdown Jetty server. More info in JMeter's console", e);
@@ -244,6 +274,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     }
     public void setHttpServerPort(int port) {
         this.httpServerPort = port;
+        configuredHttpServerPort = port;
     }
     public static SamplerMap getSamplerMap() { return samplerMap; }
     public static StandardJMeterEngine getjMeterEngine() { return jMeterEngine; }
@@ -252,10 +283,18 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     public static JMeterVariables getjMeterVariables() { return jMeterVariables; }
     public static void setjMeterVariables(JMeterVariables vars) { jMeterVariables = vars; }
     public static Properties getjMeterProperties() { return jMeterProperties; }
+    public static void setjMeterProperties(Properties properties) { jMeterProperties = properties; }
     public static HashTree getTestPlanTree() { return testPlanTree; }
     public static HashSet<ThreadGroup> getTestThreadGroups() { return testThreadGroups; }
     public static void setTestThreadGroups(HashSet<ThreadGroup> threadGroupHashSet) { LiveChanges.testThreadGroups = threadGroupHashSet; }
     public static int getStaticCalcRate() { return staticCalcRate; }
     public static void setStaticCalcRate(int staticCalcRate) { LiveChanges.staticCalcRate = staticCalcRate; }
+    public static RuntimeState getRuntimeState() { return runtimeState; }
+    public static void setRuntimeState(RuntimeState state) { runtimeState = state; }
+    public static Integer getConfiguredHttpServerPort() { return configuredHttpServerPort; }
+    public static DistributedCommandRouter getDistributedCommandRouter() { return distributedCommandRouter; }
+    public static void setDistributedCommandRouter(DistributedCommandRouter router) { distributedCommandRouter = router; }
+    public static DistributedReadAggregator getDistributedReadAggregator() { return distributedReadAggregator; }
+    public static void setDistributedReadAggregator(DistributedReadAggregator aggregator) { distributedReadAggregator = aggregator; }
 
 }

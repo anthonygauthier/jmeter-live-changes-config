@@ -28,6 +28,8 @@ import org.apache.jorphan.collections.SearchByClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.github.delirius325.jmeter.config.livechanges.api.App;
+import io.github.delirius325.jmeter.config.livechanges.distributed.DistributedCommandRouter;
+import io.github.delirius325.jmeter.config.livechanges.distributed.HttpWorkerClient;
 
 /**
  * Class that contains executes all the logic for the REST API to communicate with JMeter
@@ -39,6 +41,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     // Class attributes
     private App app;
     private Integer httpServerPort;
+    private static Integer configuredHttpServerPort;
 
     // Static Attributes - available to other classes
     private static int staticCalcRate;
@@ -52,6 +55,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     private static boolean stopThreadsFromAPI;
     private static Map<String, Queue<Map<String, Object>>> changeQueueMap = new ConcurrentHashMap<>();
     private static RuntimeState runtimeState = new RuntimeState();
+    private static DistributedCommandRouter distributedCommandRouter = new DistributedCommandRouter(new HttpWorkerClient());
 
     /**
      * Method that is executed when the test has started
@@ -268,6 +272,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     }
     public void setHttpServerPort(int port) {
         this.httpServerPort = port;
+        configuredHttpServerPort = port;
     }
     public static SamplerMap getSamplerMap() { return samplerMap; }
     public static StandardJMeterEngine getjMeterEngine() { return jMeterEngine; }
@@ -276,6 +281,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     public static JMeterVariables getjMeterVariables() { return jMeterVariables; }
     public static void setjMeterVariables(JMeterVariables vars) { jMeterVariables = vars; }
     public static Properties getjMeterProperties() { return jMeterProperties; }
+    public static void setjMeterProperties(Properties properties) { jMeterProperties = properties; }
     public static HashTree getTestPlanTree() { return testPlanTree; }
     public static HashSet<ThreadGroup> getTestThreadGroups() { return testThreadGroups; }
     public static void setTestThreadGroups(HashSet<ThreadGroup> threadGroupHashSet) { LiveChanges.testThreadGroups = threadGroupHashSet; }
@@ -283,5 +289,8 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     public static void setStaticCalcRate(int staticCalcRate) { LiveChanges.staticCalcRate = staticCalcRate; }
     public static RuntimeState getRuntimeState() { return runtimeState; }
     public static void setRuntimeState(RuntimeState state) { runtimeState = state; }
+    public static Integer getConfiguredHttpServerPort() { return configuredHttpServerPort; }
+    public static DistributedCommandRouter getDistributedCommandRouter() { return distributedCommandRouter; }
+    public static void setDistributedCommandRouter(DistributedCommandRouter router) { distributedCommandRouter = router; }
 
 }

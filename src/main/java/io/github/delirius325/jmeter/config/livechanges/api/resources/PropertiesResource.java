@@ -36,6 +36,15 @@ public class PropertiesResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response postVariables(String request) {
+        if (LiveChanges.getRuntimeState().isDistributedController()) {
+            return Response.ok(
+                    LiveChanges.getDistributedCommandRouter()
+                            .postJson(LiveChanges.getRuntimeState(), LiveChanges.getConfiguredHttpServerPort(),
+                                    "/properties", request, "properties.update")
+                            .toString()
+            ).build();
+        }
+
         JSONObject json = new JSONObject(request);
         java.util.Properties props = LiveChanges.getjMeterProperties();
         props.entrySet().forEach(entry -> {

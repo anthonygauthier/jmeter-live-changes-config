@@ -43,7 +43,7 @@
 - [x] 1.4 Add clear API-visible startup failure reporting for distributed activation so operators can tell when the distributed path is unavailable.
 - [x] 1.5 Add or extend automated tests in `src/test/java/` to cover lifecycle-path selection and controller API startup behavior.
 
-### [ ] 2.0 Implement Distributed Fanout for Mutating API Commands
+### [x] 2.0 Implement Distributed Fanout for Mutating API Commands
 
 #### 2.0 Proof Artifact(s)
 
@@ -54,11 +54,11 @@
 
 #### 2.0 Tasks
 
-- [ ] 2.1 Define the command-routing contract for distributed writes so thread, variable, property, and stop requests can be forwarded from the controller path to workers consistently.
-- [ ] 2.2 Update `ThreadsResource.java` and related runtime state so thread-count changes are dispatched to distributed workers and return worker-aware results.
-- [ ] 2.3 Update `VariablesResource.java` and `PropertiesResource.java` so distributed write requests fan out across workers and preserve existing single-node behavior.
-- [ ] 2.4 Update `TestResource.java` stop handling so a distributed test-stop request reports full success, partial success, or failure at the worker level.
-- [ ] 2.5 Add automated tests that exercise mutating-command fanout result handling for success, partial success, and failure cases.
+- [x] 2.1 Define the command-routing contract for distributed writes so thread, variable, property, and stop requests can be forwarded from the controller path to workers consistently.
+- [x] 2.2 Update `ThreadsResource.java` and related runtime state so thread-count changes are dispatched to distributed workers and return worker-aware results.
+- [x] 2.3 Update `VariablesResource.java` and `PropertiesResource.java` so distributed write requests fan out across workers and preserve existing single-node behavior.
+- [x] 2.4 Update `TestResource.java` stop handling so a distributed test-stop request reports full success, partial success, or failure at the worker level.
+- [x] 2.5 Add automated tests that exercise mutating-command fanout result handling for success, partial success, and failure cases.
 
 ### [ ] 3.0 Aggregate Distributed Read Endpoints for Operator Visibility
 

@@ -54,6 +54,10 @@ public class RuntimeState {
         return this.startupFailureMessage != null && !this.startupFailureMessage.isEmpty();
     }
 
+    public synchronized boolean isDistributedController() {
+        return this.executionMode == ExecutionMode.DISTRIBUTED_CONTROLLER;
+    }
+
     public synchronized String getStartupFailureMessage() {
         return this.startupFailureMessage;
     }

@@ -47,6 +47,15 @@ public class TestResource {
     @Path("/end")
     @Produces(MediaType.APPLICATION_JSON)
     public Response endTestRun() {
+        if (LiveChanges.getRuntimeState().isDistributedController()) {
+            return Response.ok(
+                    LiveChanges.getDistributedCommandRouter()
+                            .get(LiveChanges.getRuntimeState(), LiveChanges.getConfiguredHttpServerPort(),
+                                    "/test/end", "test.stop")
+                            .toString()
+            ).build();
+        }
+
         JSONObject jsonObject = new JSONObject();
         LiveChanges.setStopTest(true);
         JSONHelper.jsonSetInfo(jsonObject, "success", "Threads will gracefully stop.");

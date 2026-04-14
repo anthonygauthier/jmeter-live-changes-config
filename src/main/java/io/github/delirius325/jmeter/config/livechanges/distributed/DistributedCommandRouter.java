@@ -12,18 +12,49 @@ import java.util.Set;
 public class DistributedCommandRouter {
     private final WorkerClient workerClient;
 
+    /**
+     * Constructor
+     * @param workerClient WorkerClient
+     */
     public DistributedCommandRouter(WorkerClient workerClient) {
         this.workerClient = workerClient;
     }
 
+    /**
+     * Routes a distributed POST command across the registered workers
+     * @param runtimeState RuntimeState
+     * @param port int
+     * @param path String
+     * @param requestBody String
+     * @param commandName String
+     * @return JSONObject
+     */
     public JSONObject postJson(RuntimeState runtimeState, int port, String path, String requestBody, String commandName) {
         return this.route(runtimeState, port, path, requestBody, commandName, true);
     }
 
+    /**
+     * Routes a distributed GET command across the registered workers
+     * @param runtimeState RuntimeState
+     * @param port int
+     * @param path String
+     * @param commandName String
+     * @return JSONObject
+     */
     public JSONObject get(RuntimeState runtimeState, int port, String path, String commandName) {
         return this.route(runtimeState, port, path, null, commandName, false);
     }
 
+    /**
+     * Shared routing method used by distributed command endpoints
+     * @param runtimeState RuntimeState
+     * @param port int
+     * @param path String
+     * @param requestBody String
+     * @param commandName String
+     * @param isPost boolean
+     * @return JSONObject
+     */
     private JSONObject route(RuntimeState runtimeState, int port, String path, String requestBody, String commandName, boolean isPost) {
         JSONObject parentObject = new JSONObject();
         JSONObject workersObject = new JSONObject();

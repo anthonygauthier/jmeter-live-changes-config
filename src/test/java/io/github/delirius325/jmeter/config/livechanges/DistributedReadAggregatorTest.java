@@ -11,6 +11,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class DistributedReadAggregatorTest {
+    /**
+     * Verifies that distributed thread reads aggregate worker data into one response
+     */
     @Test
     public void aggregatesThreadVisibilityAcrossWorkers() {
         RuntimeState runtimeState = new RuntimeState();
@@ -26,6 +29,9 @@ public class DistributedReadAggregatorTest {
         assertEquals(2, response.getJSONArray("threads").length());
     }
 
+    /**
+     * Verifies that partial read failures keep successful worker data visible
+     */
     @Test
     public void surfacesPartialReadFailuresWithoutDroppingGoodWorkers() {
         RuntimeState runtimeState = new RuntimeState();
@@ -42,6 +48,9 @@ public class DistributedReadAggregatorTest {
         assertEquals("worker-b unavailable", response.getJSONObject("workers").getJSONObject("worker-b").getString("description"));
     }
 
+    /**
+     * Verifies that the distributed read aggregator reports error when every worker fails
+     */
     @Test
     public void reportsErrorWhenEveryWorkerReadFails() {
         RuntimeState runtimeState = new RuntimeState();
@@ -58,6 +67,12 @@ public class DistributedReadAggregatorTest {
         assertEquals(2, response.getInt("failedWorkers"));
     }
 
+    /**
+     * Utility method that creates a successful thread read response body
+     * @param threadGroupName String
+     * @param activeThreads int
+     * @return DistributedCommandResponse
+     */
     private static DistributedCommandResponse successArray(String threadGroupName, int activeThreads) {
         JSONArray array = new JSONArray();
         JSONObject threadInfo = new JSONObject();
@@ -68,15 +83,29 @@ public class DistributedReadAggregatorTest {
         return DistributedCommandResponse.success(200, new JSONObject().put("items", array));
     }
 
+    /**
+     * Utility method that creates a test status response body
+     * @param totalThreads int
+     * @return JSONObject
+     */
     private static JSONObject statusBody(int totalThreads) {
         JSONObject body = new JSONObject();
         body.put("totalThreads", totalThreads);
         return body;
     }
 
+    /**
+     * Stub worker client used to drive deterministic read aggregation behavior
+     */
     private static class StubWorkerClient implements WorkerClient {
         private final JSONObject responses = new JSONObject();
 
+        /**
+         * Registers a GET response for a worker host
+         * @param host String
+         * @param response DistributedCommandResponse
+         * @return StubWorkerClient
+         */
         private StubWorkerClient with(String host, DistributedCommandResponse response) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("statusCode", response.getStatusCode());

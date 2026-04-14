@@ -19,6 +19,10 @@ public class DistributedControllerApiTest {
 
     private App app;
 
+    /**
+     * Starts the embedded API in distributed-controller mode for API-level verification
+     * @throws Exception if setup fails
+     */
     @Before
     public void setUp() throws Exception {
         RuntimeState runtimeState = new RuntimeState();
@@ -32,6 +36,10 @@ public class DistributedControllerApiTest {
         this.app.start();
     }
 
+    /**
+     * Stops the embedded API and resets runtime state
+     * @throws Exception if teardown fails
+     */
     @After
     public void tearDown() throws Exception {
         if (this.app != null) {
@@ -40,6 +48,10 @@ public class DistributedControllerApiTest {
         LiveChanges.setRuntimeState(new RuntimeState());
     }
 
+    /**
+     * Verifies that controller-facing distributed write endpoints return worker-aware responses
+     * @throws Exception if the HTTP requests fail
+     */
     @Test
     public void returnsWorkerAwareDistributedResponses() throws Exception {
         HttpResponse<String> threadsResponse = Unirest.post(BASE_URL + "/threads/checkout")
@@ -67,6 +79,9 @@ public class DistributedControllerApiTest {
         assertTrue(stopResponse.getBody().contains("\"command\":\"test.stop\""));
     }
 
+    /**
+     * Stub worker client used by the API-level distributed controller test
+     */
     private static class TestWorkerClient implements WorkerClient {
         @Override
         public DistributedCommandResponse postJson(String host, int port, String path, String requestBody) {

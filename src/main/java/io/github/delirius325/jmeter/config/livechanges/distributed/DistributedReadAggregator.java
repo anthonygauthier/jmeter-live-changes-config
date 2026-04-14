@@ -11,10 +11,21 @@ import org.json.JSONObject;
 public class DistributedReadAggregator {
     private final WorkerClient workerClient;
 
+    /**
+     * Constructor
+     * @param workerClient WorkerClient
+     */
     public DistributedReadAggregator(WorkerClient workerClient) {
         this.workerClient = workerClient;
     }
 
+    /**
+     * Aggregates distributed thread responses
+     * @param runtimeState RuntimeState
+     * @param port int
+     * @param path String
+     * @return JSONObject
+     */
     public JSONObject aggregateThreads(RuntimeState runtimeState, int port, String path) {
         JSONObject response = baseResponse(runtimeState, "threads.read");
         JSONArray aggregatedThreads = new JSONArray();
@@ -50,6 +61,13 @@ public class DistributedReadAggregator {
         return response;
     }
 
+    /**
+     * Aggregates distributed test status responses
+     * @param runtimeState RuntimeState
+     * @param port int
+     * @param path String
+     * @return JSONObject
+     */
     public JSONObject aggregateStatus(RuntimeState runtimeState, int port, String path) {
         JSONObject response = baseResponse(runtimeState, "test.status");
         JSONObject workers = new JSONObject();
@@ -71,6 +89,13 @@ public class DistributedReadAggregator {
         return response;
     }
 
+    /**
+     * Aggregates distributed test summary responses
+     * @param runtimeState RuntimeState
+     * @param port int
+     * @param path String
+     * @return JSONObject
+     */
     public JSONObject aggregateSummary(RuntimeState runtimeState, int port, String path) {
         JSONObject response = baseResponse(runtimeState, "test.summary");
         JSONObject workers = new JSONObject();
@@ -92,6 +117,13 @@ public class DistributedReadAggregator {
         return response;
     }
 
+    /**
+     * Aggregates distributed test error responses
+     * @param runtimeState RuntimeState
+     * @param port int
+     * @param path String
+     * @return JSONObject
+     */
     public JSONObject aggregateErrors(RuntimeState runtimeState, int port, String path) {
         JSONObject response = baseResponse(runtimeState, "test.errors");
         JSONObject workers = new JSONObject();
@@ -113,6 +145,12 @@ public class DistributedReadAggregator {
         return response;
     }
 
+    /**
+     * Creates the base response wrapper for distributed reads
+     * @param runtimeState RuntimeState
+     * @param endpoint String
+     * @return JSONObject
+     */
     private JSONObject baseResponse(RuntimeState runtimeState, String endpoint) {
         JSONObject response = new JSONObject();
         response.put("endpoint", endpoint);
@@ -120,6 +158,14 @@ public class DistributedReadAggregator {
         return response;
     }
 
+    /**
+     * Finalizes top-level distributed read metadata
+     * @param response JSONObject
+     * @param workers JSONObject
+     * @param workerCount int
+     * @param successes int
+     * @param descriptionPrefix String
+     */
     private void finalizeResponse(JSONObject response, JSONObject workers, int workerCount, int successes, String descriptionPrefix) {
         response.put("workerCount", workerCount);
         response.put("successfulWorkers", successes);
@@ -140,6 +186,11 @@ public class DistributedReadAggregator {
         }
     }
 
+    /**
+     * Creates the worker result object included in aggregated read responses
+     * @param workerResponse DistributedCommandResponse
+     * @return JSONObject
+     */
     private JSONObject workerObject(DistributedCommandResponse workerResponse) {
         JSONObject workerObject = new JSONObject();
         workerObject.put("info", workerResponse.getInfo());

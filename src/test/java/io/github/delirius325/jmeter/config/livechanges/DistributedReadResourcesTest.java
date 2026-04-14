@@ -24,6 +24,9 @@ import static org.junit.Assert.assertTrue;
 public class DistributedReadResourcesTest {
     private RuntimeState runtimeState;
 
+    /**
+     * Prepares shared state for resource-level distributed read tests
+     */
     @Before
     public void setUp() {
         this.runtimeState = new RuntimeState();
@@ -34,6 +37,9 @@ public class DistributedReadResourcesTest {
         LiveChanges.setStaticCalcRate(0);
     }
 
+    /**
+     * Resets shared state after each resource-level distributed read test
+     */
     @After
     public void tearDown() {
         LiveChanges.setRuntimeState(new RuntimeState());
@@ -41,6 +47,9 @@ public class DistributedReadResourcesTest {
         LiveChanges.setTestThreadGroups(new HashSet<ThreadGroup>());
     }
 
+    /**
+     * Verifies that distributed thread and test reads route through the read aggregator
+     */
     @Test
     public void routesThreadsAndTestReadsThroughDistributedAggregator() {
         this.runtimeState.registerRemoteHost("worker-a");
@@ -56,6 +65,9 @@ public class DistributedReadResourcesTest {
         assertEquals("success", errors.getString("info"));
     }
 
+    /**
+     * Verifies that single-node thread reads keep the original array-based shape
+     */
     @Test
     public void preservesSingleNodeThreadReadShape() {
         ThreadGroup threadGroup = new ThreadGroup();
@@ -71,6 +83,9 @@ public class DistributedReadResourcesTest {
         assertFalse(response.getEntity().toString().contains("\"workers\""));
     }
 
+    /**
+     * Verifies that single-node status reads keep the original object-based shape
+     */
     @Test
     public void preservesSingleNodeStatusShape() {
         Response response = new TestResource().getTestStatus();
@@ -81,6 +96,9 @@ public class DistributedReadResourcesTest {
         assertFalse(jsonObject.has("workers"));
     }
 
+    /**
+     * Stub worker client used for resource-level distributed read tests
+     */
     private static class TestWorkerClient implements WorkerClient {
         @Override
         public DistributedCommandResponse postJson(String host, int port, String path, String requestBody) {

@@ -20,6 +20,10 @@ public class DistributedReadApiTest {
 
     private App app;
 
+    /**
+     * Starts the embedded API in distributed-controller mode for read aggregation verification
+     * @throws Exception if setup fails
+     */
     @Before
     public void setUp() throws Exception {
         RuntimeState runtimeState = new RuntimeState();
@@ -33,6 +37,10 @@ public class DistributedReadApiTest {
         this.app.start();
     }
 
+    /**
+     * Stops the embedded API and resets runtime state
+     * @throws Exception if teardown fails
+     */
     @After
     public void tearDown() throws Exception {
         if (this.app != null) {
@@ -41,6 +49,10 @@ public class DistributedReadApiTest {
         LiveChanges.setRuntimeState(new RuntimeState());
     }
 
+    /**
+     * Verifies that controller-facing distributed read endpoints return aggregated worker-aware payloads
+     * @throws Exception if the HTTP requests fail
+     */
     @Test
     public void returnsWorkerAwareReadResponses() throws Exception {
         HttpResponse<String> threads = Unirest.get(BASE_URL + "/threads").asString();
@@ -59,6 +71,9 @@ public class DistributedReadApiTest {
         assertTrue(errors.getBody().contains("\"endpoint\":\"test.errors\""));
     }
 
+    /**
+     * Stub worker client used by the API-level distributed read test
+     */
     private static class TestWorkerClient implements WorkerClient {
         @Override
         public DistributedCommandResponse postJson(String host, int port, String path, String requestBody) {

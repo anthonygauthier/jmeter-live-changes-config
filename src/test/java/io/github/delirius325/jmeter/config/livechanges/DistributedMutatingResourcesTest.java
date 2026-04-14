@@ -23,6 +23,9 @@ import static org.junit.Assert.assertTrue;
 public class DistributedMutatingResourcesTest {
     private RuntimeState runtimeState;
 
+    /**
+     * Prepares shared state for resource-level distributed write tests
+     */
     @Before
     public void setUp() {
         this.runtimeState = new RuntimeState();
@@ -34,6 +37,9 @@ public class DistributedMutatingResourcesTest {
         LiveChanges.setStopTest(false);
     }
 
+    /**
+     * Resets shared state after each resource-level distributed write test
+     */
     @After
     public void tearDown() {
         LiveChanges.setRuntimeState(new RuntimeState());
@@ -43,6 +49,10 @@ public class DistributedMutatingResourcesTest {
         LiveChanges.setStopTest(false);
     }
 
+    /**
+     * Verifies that distributed thread writes route through the controller-side router
+     * @throws Exception if the resource call fails
+     */
     @Test
     public void routesThreadUpdatesThroughDistributedRouter() throws Exception {
         this.runtimeState.registerRemoteHost("worker-a");
@@ -55,6 +65,9 @@ public class DistributedMutatingResourcesTest {
         assertTrue(jsonObject.getJSONObject("workers").has("worker-a"));
     }
 
+    /**
+     * Verifies that distributed variable writes route through the controller-side router
+     */
     @Test
     public void routesVariableUpdatesThroughDistributedRouter() {
         this.runtimeState.registerRemoteHost("worker-a");
@@ -66,6 +79,9 @@ public class DistributedMutatingResourcesTest {
         assertEquals("success", jsonObject.getString("info"));
     }
 
+    /**
+     * Verifies that distributed property writes route through the controller-side router
+     */
     @Test
     public void routesPropertyUpdatesThroughDistributedRouter() {
         this.runtimeState.registerRemoteHost("worker-a");
@@ -77,6 +93,9 @@ public class DistributedMutatingResourcesTest {
         assertEquals("success", jsonObject.getString("info"));
     }
 
+    /**
+     * Verifies that distributed stop commands route through the controller-side router
+     */
     @Test
     public void routesStopCommandThroughDistributedRouter() {
         this.runtimeState.registerRemoteHost("worker-a");
@@ -88,6 +107,9 @@ public class DistributedMutatingResourcesTest {
         assertEquals("success", jsonObject.getString("info"));
     }
 
+    /**
+     * Verifies that single-node variable updates keep their previous behavior
+     */
     @Test
     public void preservesSingleNodeVariableUpdates() {
         JMeterVariables vars = new JMeterVariables();
@@ -101,6 +123,9 @@ public class DistributedMutatingResourcesTest {
         assertEquals("new-value", LiveChanges.getjMeterVariables().get("exampleVar"));
     }
 
+    /**
+     * Verifies that single-node property updates keep their previous behavior
+     */
     @Test
     public void preservesSingleNodePropertyUpdates() {
         Properties properties = new Properties();
@@ -114,6 +139,9 @@ public class DistributedMutatingResourcesTest {
         assertEquals("new-value", LiveChanges.getjMeterProperties().get("example.property"));
     }
 
+    /**
+     * Verifies that single-node stop behavior is unchanged
+     */
     @Test
     public void preservesSingleNodeStopBehavior() {
         Response response = new TestResource().endTestRun();
@@ -124,6 +152,9 @@ public class DistributedMutatingResourcesTest {
         assertFalse(jsonObject.has("workers"));
     }
 
+    /**
+     * Stub worker client used for resource-level distributed write tests
+     */
     private static class CapturingWorkerClient implements WorkerClient {
         @Override
         public DistributedCommandResponse postJson(String host, int port, String path, String requestBody) {

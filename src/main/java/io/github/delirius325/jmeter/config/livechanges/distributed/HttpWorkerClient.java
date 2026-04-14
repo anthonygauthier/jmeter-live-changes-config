@@ -8,6 +8,14 @@ import org.json.JSONObject;
  * Default worker client that forwards requests over HTTP to worker-local APIs.
  */
 public class HttpWorkerClient implements WorkerClient {
+    /**
+     * Sends a JSON POST request to a worker host
+     * @param host String
+     * @param port int
+     * @param path String
+     * @param requestBody String
+     * @return DistributedCommandResponse
+     */
     @Override
     public DistributedCommandResponse postJson(String host, int port, String path, String requestBody) {
         try {
@@ -21,6 +29,13 @@ public class HttpWorkerClient implements WorkerClient {
         }
     }
 
+    /**
+     * Sends a GET request to a worker host
+     * @param host String
+     * @param port int
+     * @param path String
+     * @return DistributedCommandResponse
+     */
     @Override
     public DistributedCommandResponse get(String host, int port, String path) {
         try {
@@ -31,6 +46,11 @@ public class HttpWorkerClient implements WorkerClient {
         }
     }
 
+    /**
+     * Converts the HTTP response to the internal distributed response format
+     * @param response HttpResponse<String>
+     * @return DistributedCommandResponse
+     */
     private DistributedCommandResponse toDistributedResponse(HttpResponse<String> response) {
         try {
             return DistributedCommandResponse.success(response.getStatus(), new JSONObject(response.getBody()));
@@ -41,6 +61,13 @@ public class HttpWorkerClient implements WorkerClient {
         }
     }
 
+    /**
+     * Builds the worker URL for the supplied path
+     * @param host String
+     * @param port int
+     * @param path String
+     * @return String
+     */
     private String buildUrl(String host, int port, String path) {
         return String.format("http://%s:%d/v1%s", host, port, path);
     }

@@ -9,6 +9,9 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class DistributedCommandRouterTest {
+    /**
+     * Verifies that the distributed router reports success when every worker succeeds
+     */
     @Test
     public void reportsSuccessWhenAllWorkersSucceed() {
         RuntimeState runtimeState = new RuntimeState();
@@ -25,6 +28,9 @@ public class DistributedCommandRouterTest {
         assertEquals(0, response.getInt("failedWorkers"));
     }
 
+    /**
+     * Verifies that partial worker failures are surfaced without dropping successes
+     */
     @Test
     public void reportsPartialSuccessWhenSomeWorkersFail() {
         RuntimeState runtimeState = new RuntimeState();
@@ -42,6 +48,9 @@ public class DistributedCommandRouterTest {
         assertEquals("worker-b unavailable", response.getJSONObject("workers").getJSONObject("worker-b").getString("description"));
     }
 
+    /**
+     * Verifies that the distributed router reports error when every worker fails
+     */
     @Test
     public void reportsErrorWhenAllWorkersFail() {
         RuntimeState runtimeState = new RuntimeState();
@@ -58,6 +67,11 @@ public class DistributedCommandRouterTest {
         assertEquals(2, response.getInt("failedWorkers"));
     }
 
+    /**
+     * Utility method that creates a successful worker response body
+     * @param description String
+     * @return JSONObject
+     */
     private static JSONObject successBody(String description) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("info", "success");
@@ -65,15 +79,30 @@ public class DistributedCommandRouterTest {
         return jsonObject;
     }
 
+    /**
+     * Stub worker client used to drive deterministic router test behavior
+     */
     private static class StubWorkerClient implements WorkerClient {
         private final JSONObject postResponses = new JSONObject();
         private final JSONObject getResponses = new JSONObject();
 
+        /**
+         * Registers a POST response for a worker host
+         * @param host String
+         * @param response DistributedCommandResponse
+         * @return StubWorkerClient
+         */
         private StubWorkerClient withPost(String host, DistributedCommandResponse response) {
             this.postResponses.put(host, wrap(response));
             return this;
         }
 
+        /**
+         * Registers a GET response for a worker host
+         * @param host String
+         * @param response DistributedCommandResponse
+         * @return StubWorkerClient
+         */
         private StubWorkerClient withGet(String host, DistributedCommandResponse response) {
             this.getResponses.put(host, wrap(response));
             return this;
@@ -89,6 +118,11 @@ public class DistributedCommandRouterTest {
             return unwrap(this.getResponses.getJSONObject(host));
         }
 
+        /**
+         * Serializes a stub response into JSON storage for the test client
+         * @param response DistributedCommandResponse
+         * @return JSONObject
+         */
         private JSONObject wrap(DistributedCommandResponse response) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("statusCode", response.getStatusCode());
@@ -97,6 +131,11 @@ public class DistributedCommandRouterTest {
             return jsonObject;
         }
 
+        /**
+         * Deserializes a stored stub response
+         * @param jsonObject JSONObject
+         * @return DistributedCommandResponse
+         */
         private DistributedCommandResponse unwrap(JSONObject jsonObject) {
             String failureReason = jsonObject.optString("failureReason", null);
             if (failureReason != null && !failureReason.isEmpty() && !"null".equals(failureReason)) {

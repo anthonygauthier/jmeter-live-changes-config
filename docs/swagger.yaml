@@ -2,10 +2,10 @@ openapi: 3.0.0
 info:
   title: Live Changes API
   description: REST API documentation for the JMeter plugin "Live Changes Config". For more info, head over to our [GitHub repository](https://www.github.com/delirius325/jmeter-live-changes-config)
-  version: 0.1.0
+  version: 0.2.0
 servers:
   - url: http://your.host.com/v1
-    description: This is a test url meant to represent your host. The only valid part in this is the /v1 path
+    description: Replace `your.host.com` with the controller host exposing the Live Changes API.
 paths:
   /healthcheck:
     get:
@@ -13,13 +13,19 @@ paths:
       tags:
         - Health
       responses:
-        '200':    # status code
-          description: OK
+        '200':
+          description: API reachable
           content:
             text/plain:
               schema:
                 type: string
-                example: "connected"
+                example: connected
+        '503':
+          description: Distributed startup failed and the failure is exposed through the API
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthcheckFailure'
   /threads:
     get:
       summary: Returns info about all thread groups
@@ -27,11 +33,13 @@ paths:
         - Threads
       responses:
         '200':
-          description: OK
+          description: Single-node response or distributed aggregated response depending on runtime mode
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AllThreadsResponse'
+                oneOf:
+                  - $ref: '#/components/schemas/AllThreadsResponse'
+                  - $ref: '#/components/schemas/DistributedThreadsReadResponse'
   /threads/{threadName}:
     get:
       summary: Get thread group info by name
@@ -46,13 +54,15 @@ paths:
           description: Name of the thread group to retrieve
       responses:
         '200':
-          description: OK
+          description: Single-node response or distributed aggregated response depending on runtime mode
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SingleThreadResponse'
+                oneOf:
+                  - $ref: '#/components/schemas/SingleThreadResponse'
+                  - $ref: '#/components/schemas/DistributedThreadsReadResponse'
     post:
-      summary: Modify/Update a thread group by its' name
+      summary: Modify a thread group by name
       tags:
         - Threads
       parameters:
@@ -70,23 +80,27 @@ paths:
               $ref: '#/components/schemas/ModifyThreadRequest'
       responses:
         '200':
-          description: OK
+          description: Single-node success response or distributed worker-aware response depending on runtime mode
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ModifyThreadResponse'
+                oneOf:
+                  - $ref: '#/components/schemas/ModifyThreadResponse'
+                  - $ref: '#/components/schemas/DistributedCommandResponse'
   /test/status:
     get:
-      summary: Retrieves the status of the running test (duration, running time, etc.)
+      summary: Retrieves the status of the running test
       tags:
         - Test
       responses:
         '200':
-          description: OK
+          description: Single-node response or distributed aggregated response depending on runtime mode
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TestStatus'
+                oneOf:
+                  - $ref: '#/components/schemas/TestStatus'
+                  - $ref: '#/components/schemas/DistributedStatusReadResponse'
   /test/end:
     get:
       summary: Signals JMeter to stop the test
@@ -94,11 +108,13 @@ paths:
         - Test
       responses:
         '200':
-          description: OK
+          description: Single-node success response or distributed worker-aware response depending on runtime mode
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TestEnd'
+                oneOf:
+                  - $ref: '#/components/schemas/TestEnd'
+                  - $ref: '#/components/schemas/DistributedCommandResponse'
   /test/summary:
     get:
       summary: Returns a summary of the results at the time of query
@@ -106,11 +122,27 @@ paths:
         - Test
       responses:
         '200':
-          description: OK
+          description: Single-node response or distributed aggregated response depending on runtime mode
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TestSummary'
+                oneOf:
+                  - $ref: '#/components/schemas/TestSummary'
+                  - $ref: '#/components/schemas/DistributedSummaryReadResponse'
+  /test/errors:
+    get:
+      summary: Returns the current sampler errors at the time of query
+      tags:
+        - Test
+      responses:
+        '200':
+          description: Single-node response or distributed aggregated response depending on runtime mode
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/TestErrors'
+                  - $ref: '#/components/schemas/DistributedErrorsReadResponse'
   /variables:
     get:
       summary: Returns all the current variables
@@ -118,7 +150,7 @@ paths:
         - Variables
       responses:
         '200':
-          description: OK
+          description: Current JMeter variables
           content:
             application/json:
               schema:
@@ -135,11 +167,13 @@ paths:
               $ref: '#/components/schemas/ModifyVariablesReq'
       responses:
         '200':
-          description: OK
+          description: Single-node success response or distributed worker-aware response depending on runtime mode
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ModifyVariablesRes'
+                oneOf:
+                  - $ref: '#/components/schemas/ModifyVariablesRes'
+                  - $ref: '#/components/schemas/DistributedCommandResponse'
   /properties:
     get:
       summary: Returns all the current properties
@@ -147,7 +181,7 @@ paths:
         - Properties
       responses:
         '200':
-          description: OK
+          description: Current JMeter properties
           content:
             application/json:
               schema:
@@ -164,66 +198,67 @@ paths:
               $ref: '#/components/schemas/ModifyPropertiesReq'
       responses:
         '200':
-          description: OK
+          description: Single-node success response or distributed worker-aware response depending on runtime mode
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ModifyPropertiesRes'
+                oneOf:
+                  - $ref: '#/components/schemas/ModifyPropertiesRes'
+                  - $ref: '#/components/schemas/DistributedCommandResponse'
 
 components:
   schemas:
+    HealthcheckFailure:
+      type: object
+      properties:
+        info:
+          type: string
+          example: error
+        description:
+          type: string
+          example: LiveChanges was unable to start the embedded API server.
+        executionMode:
+          type: string
+          example: DISTRIBUTED_CONTROLLER
+        remoteHosts:
+          type: array
+          items:
+            type: string
+            example: worker-a
     AllThreadsResponse:
       type: array
       items:
         type: object
-        properties:
-          threadGroup:
-            type: object
-            properties:
-              scheduler:
-                type: object
-                properties:
-                  duration:
-                    type: integer
-                  delay:
-                    type: integer
-              onErrorStopThread:
-                type: boolean
-              isEnabled:
-                type: boolean
-              onErrorStopTestNow:
-                type: boolean
-              comment:
-                type: string
-              onErrorStartNextLoop:
-                type: boolean
-              rampUp:
-                type: integer
+        additionalProperties:
+          $ref: '#/components/schemas/ThreadGroupState'
     SingleThreadResponse:
       type: object
+      additionalProperties:
+        $ref: '#/components/schemas/ThreadGroupState'
+    ThreadGroupState:
+      type: object
       properties:
-        threadGroup:
+        scheduler:
           type: object
           properties:
-            scheduler:
-              type: object
-              properties:
-                duration:
-                  type: integer
-                delay:
-                  type: integer
-            onErrorStopThread:
-              type: boolean
-            isEnabled:
-              type: boolean
-            onErrorStopTestNow:
-              type: boolean
-            comment:
-              type: string
-            onErrorStartNextLoop:
-              type: boolean
-            rampUp:
+            duration:
               type: integer
+            delay:
+              type: integer
+        onErrorStopThread:
+          type: boolean
+        isEnabled:
+          type: boolean
+        onErrorStopTestNow:
+          type: boolean
+        comment:
+          type: string
+        onErrorStartNextLoop:
+          type: boolean
+        rampUp:
+          type: integer
+        active:
+          type: integer
     ModifyThreadRequest:
       type: object
       properties:
@@ -235,13 +270,61 @@ components:
       properties:
         description:
           type: string
-          example: "Changed number of active threads."
+          example: Changed number of active threads.
         threadNum:
           type: integer
           example: 3
         info:
           type: string
-          example: "success"
+          example: success
+    DistributedCommandResponse:
+      type: object
+      properties:
+        command:
+          type: string
+          example: variables.update
+        executionMode:
+          type: string
+          example: DISTRIBUTED_CONTROLLER
+        info:
+          type: string
+          enum:
+            - success
+            - partial_success
+            - error
+        description:
+          type: string
+          example: Distributed command succeeded on 1 of 2 workers.
+        workerCount:
+          type: integer
+          example: 2
+        successfulWorkers:
+          type: integer
+          example: 1
+        failedWorkers:
+          type: integer
+          example: 1
+        workers:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/DistributedWorkerResult'
+    DistributedWorkerResult:
+      type: object
+      properties:
+        info:
+          type: string
+          enum:
+            - success
+            - error
+        statusCode:
+          type: integer
+          example: 200
+        description:
+          type: string
+          example: worker-b unavailable
+        response:
+          type: object
+          additionalProperties: true
     TestStatus:
       type: object
       properties:
@@ -262,117 +345,218 @@ components:
       properties:
         description:
           type: string
-          example: "Threads will gracefully stop."
+          example: Threads will gracefully stop.
         info:
           type: string
-          example: "success"
+          example: success
     TestSummary:
       type: array
       items:
         type: object
-        properties:
-          averageLatency:
-            type: integer
-            example: 65
-          averageResponseTime:
-            type: integer
-            example: 189
-          minResponseTime:
-            type: integer
-            example: 160
-          maxResponseTime:
-            type: integer
-            example: 503
-          hitsPerSecond:
-            type: number
-            example: 4.98
-          sentBytesPerSecond:
-            type: number
-            example: 1125.41
-          totalErrors:
-            type: integer
-            example: 0
-          errorPercentage:
-            type: number
-            example: 0.0
-          receivedBytesPerSecond:
-            type: number
-            example: 70391.25
-          90thPercentile:
-            type: integer
-            example: 234
-          totalSamples:
-            type: integer
-            example: 162
-          totalBytes:
-            type: integer
-            example: 2289968
-          averageBytes:
-            type: number
-            example: 14135.6
-          standardDeviation:
-            type: number
-            example: 62.85
-    GetVariables:
+        additionalProperties:
+          $ref: '#/components/schemas/TestSummaryEntry'
+    TestSummaryEntry:
       type: object
       properties:
-        START.MS:
+        averageLatency:
           type: integer
-          example: 1598550473118
-        TESTSTART.MS:
+          example: 65
+        averageResponseTime:
           type: integer
-          example: 1598550485316
-        JMeterThread.last_sample_ok:
-          type: boolean
-          example: true
-        all_other_variables_will_show_here:
-          type: boolean
-          example: true
+          example: 189
+        minResponseTime:
+          type: integer
+          example: 160
+        maxResponseTime:
+          type: integer
+          example: 503
+        hitsPerSecond:
+          type: number
+          example: 4.98
+        sentBytesPerSecond:
+          type: number
+          example: 1125.41
+        totalErrors:
+          type: integer
+          example: 0
+        errorPercentage:
+          type: number
+          example: 0.0
+        receivedBytesPerSecond:
+          type: number
+          example: 70391.25
+        90thPercentile:
+          type: integer
+          example: 234
+        totalSamples:
+          type: integer
+          example: 162
+        totalBytes:
+          type: integer
+          example: 2289968
+        averageBytes:
+          type: number
+          example: 14135.6
+        standardDeviation:
+          type: number
+          example: 62.85
+    TestErrors:
+      type: array
+      items:
+        type: object
+        additionalProperties:
+          type: object
+          properties:
+            errorCode:
+              type: string
+            errorMessage:
+              type: string
+            errorData:
+              type: string
+    DistributedReadBase:
+      type: object
+      properties:
+        endpoint:
+          type: string
+          example: test.status
+        executionMode:
+          type: string
+          example: DISTRIBUTED_CONTROLLER
+        info:
+          type: string
+          enum:
+            - success
+            - partial_success
+            - error
+        description:
+          type: string
+        workerCount:
+          type: integer
+          example: 2
+        successfulWorkers:
+          type: integer
+          example: 1
+        failedWorkers:
+          type: integer
+          example: 1
+        workers:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/DistributedWorkerResult'
+    DistributedThreadsReadResponse:
+      allOf:
+        - $ref: '#/components/schemas/DistributedReadBase'
+        - type: object
+          properties:
+            threads:
+              type: array
+              items:
+                type: object
+                properties:
+                  worker:
+                    type: string
+                    example: worker-a
+                  threadGroup:
+                    type: object
+                    additionalProperties:
+                      $ref: '#/components/schemas/ThreadGroupState'
+    DistributedStatusReadResponse:
+      allOf:
+        - $ref: '#/components/schemas/DistributedReadBase'
+        - type: object
+          properties:
+            statusByWorker:
+              type: object
+              additionalProperties:
+                $ref: '#/components/schemas/TestStatus'
+    DistributedSummaryReadResponse:
+      allOf:
+        - $ref: '#/components/schemas/DistributedReadBase'
+        - type: object
+          properties:
+            summaryByWorker:
+              type: object
+              additionalProperties:
+                type: object
+                properties:
+                  samples:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties:
+                        $ref: '#/components/schemas/TestSummaryEntry'
+    DistributedErrorsReadResponse:
+      allOf:
+        - $ref: '#/components/schemas/DistributedReadBase'
+        - type: object
+          properties:
+            errorsByWorker:
+              type: object
+              additionalProperties:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties:
+                        type: object
+                        properties:
+                          errorCode:
+                            type: string
+                          errorMessage:
+                            type: string
+                          errorData:
+                            type: string
+    GetVariables:
+      type: object
+      additionalProperties:
+        type: string
+      example:
+        START.MS: "1598550473118"
+        TESTSTART.MS: "1598550485316"
+        exampleVar: "my-value"
     ModifyVariablesReq:
       type: object
       properties:
         my_variable_name:
           type: string
-          example: "my_new_value"
+          example: my_new_value
     ModifyVariablesRes:
       type: object
       properties:
         description:
           type: string
-          example: "Variables were changed."
+          example: Variables were changed.
         my_variable_name:
           type: string
-          example: "my_new_value"
+          example: my_new_value
         info:
           type: string
-          example: "success"
+          example: success
     GetProperties:
       type: object
-      properties:
-        beanshell.server.file:
-          type: string
-          example: "../extras/startup.bsh"
-        cookies:
-          type: string
-          example: "cookies"
-        all_other_properties_will_show_here:
-          type: boolean
-          example: true
+      additionalProperties:
+        type: string
+      example:
+        beanshell.server.file: ../extras/startup.bsh
+        cookies: cookies
+        example.property: my-value
     ModifyPropertiesReq:
       type: object
       properties:
         my_property_name:
           type: string
-          example: "my_new_value"
+          example: my_new_value
     ModifyPropertiesRes:
       type: object
       properties:
         description:
           type: string
-          example: "Properties were changed."
+          example: Properties were changed.
         my_variable_name:
           type: string
-          example: "my_new_value"
+          example: my_new_value
         info:
           type: string
-          example: "success"
+          example: success

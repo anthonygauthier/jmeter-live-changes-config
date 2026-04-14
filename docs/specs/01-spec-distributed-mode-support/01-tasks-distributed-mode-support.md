@@ -76,7 +76,7 @@
 - [x] 3.4 Ensure read endpoints return useful distributed errors when one or more workers are unavailable without hiding successful worker data.
 - [x] 3.5 Add automated tests for aggregated read endpoints, including distributed responses and backward-compatible single-node responses.
 
-### [ ] 4.0 Update API Documentation and Distributed Validation Assets
+### [x] 4.0 Update API Documentation and Distributed Validation Assets
 
 #### 4.0 Proof Artifact(s)
 
@@ -86,7 +86,7 @@
 
 #### 4.0 Tasks
 
-- [ ] 4.1 Update `docs/swagger.yaml` so distributed-mode request and response behavior is documented for health, write, and read endpoints.
-- [ ] 4.2 Add or update repository documentation that explains distributed-mode setup assumptions, controller-facing usage, and any response-shape differences.
-- [ ] 4.3 Create a sanitized manual validation checklist or notes file for a real distributed JMeter run using `examples/sample-testplan.jmx` or an equivalent non-sensitive test plan.
-- [ ] 4.4 Verify the full planned proof set is reproducible, sanitized, and linked to the task sections before implementation handoff.
+- [x] 4.1 Update `docs/swagger.yaml` so distributed-mode request and response behavior is documented for health, write, and read endpoints.
+- [x] 4.2 Add or update repository documentation that explains distributed-mode setup assumptions, controller-facing usage, and any response-shape differences.
+- [x] 4.3 Create a sanitized manual validation checklist or notes file for a real distributed JMeter run using `examples/sample-testplan.jmx` or an equivalent non-sensitive test plan.
+- [x] 4.4 Verify the full planned proof set is reproducible, sanitized, and linked to the task sections before implementation handoff.

@@ -60,7 +60,7 @@
 - [x] 2.4 Update `TestResource.java` stop handling so a distributed test-stop request reports full success, partial success, or failure at the worker level.
 - [x] 2.5 Add automated tests that exercise mutating-command fanout result handling for success, partial success, and failure cases.
 
-### [ ] 3.0 Aggregate Distributed Read Endpoints for Operator Visibility
+### [x] 3.0 Aggregate Distributed Read Endpoints for Operator Visibility
 
 #### 3.0 Proof Artifact(s)
 
@@ -70,11 +70,11 @@
 
 #### 3.0 Tasks
 
-- [ ] 3.1 Define the distributed read-response shape, including where worker identity appears and where existing single-node response shapes remain unchanged.
-- [ ] 3.2 Update `ThreadGroupHelper.java` and `ThreadsResource.java` so distributed thread reads aggregate worker state into one controller-visible response.
-- [ ] 3.3 Update `TestResource.java`, `SamplerMap.java`, and `ResultHolder.java` so status, summary, and error endpoints can expose distributed, worker-aware data.
-- [ ] 3.4 Ensure read endpoints return useful distributed errors when one or more workers are unavailable without hiding successful worker data.
-- [ ] 3.5 Add automated tests for aggregated read endpoints, including distributed responses and backward-compatible single-node responses.
+- [x] 3.1 Define the distributed read-response shape, including where worker identity appears and where existing single-node response shapes remain unchanged.
+- [x] 3.2 Update `ThreadGroupHelper.java` and `ThreadsResource.java` so distributed thread reads aggregate worker state into one controller-visible response.
+- [x] 3.3 Update `TestResource.java`, `SamplerMap.java`, and `ResultHolder.java` so status, summary, and error endpoints can expose distributed, worker-aware data.
+- [x] 3.4 Ensure read endpoints return useful distributed errors when one or more workers are unavailable without hiding successful worker data.
+- [x] 3.5 Add automated tests for aggregated read endpoints, including distributed responses and backward-compatible single-node responses.
 
 ### [ ] 4.0 Update API Documentation and Distributed Validation Assets
 

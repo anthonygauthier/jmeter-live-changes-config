@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.github.delirius325.jmeter.config.livechanges.api.App;
 import io.github.delirius325.jmeter.config.livechanges.distributed.DistributedCommandRouter;
+import io.github.delirius325.jmeter.config.livechanges.distributed.DistributedReadAggregator;
 import io.github.delirius325.jmeter.config.livechanges.distributed.HttpWorkerClient;
 
 /**
@@ -56,6 +57,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     private static Map<String, Queue<Map<String, Object>>> changeQueueMap = new ConcurrentHashMap<>();
     private static RuntimeState runtimeState = new RuntimeState();
     private static DistributedCommandRouter distributedCommandRouter = new DistributedCommandRouter(new HttpWorkerClient());
+    private static DistributedReadAggregator distributedReadAggregator = new DistributedReadAggregator(new HttpWorkerClient());
 
     /**
      * Method that is executed when the test has started
@@ -292,5 +294,7 @@ public class LiveChanges extends ConfigTestElement implements TestBean, LoopIter
     public static Integer getConfiguredHttpServerPort() { return configuredHttpServerPort; }
     public static DistributedCommandRouter getDistributedCommandRouter() { return distributedCommandRouter; }
     public static void setDistributedCommandRouter(DistributedCommandRouter router) { distributedCommandRouter = router; }
+    public static DistributedReadAggregator getDistributedReadAggregator() { return distributedReadAggregator; }
+    public static void setDistributedReadAggregator(DistributedReadAggregator aggregator) { distributedReadAggregator = aggregator; }
 
 }

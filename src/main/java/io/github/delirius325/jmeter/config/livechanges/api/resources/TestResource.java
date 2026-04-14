@@ -31,6 +31,13 @@ public class TestResource {
     @Path("/status")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getTestStatus() {
+        if (LiveChanges.getRuntimeState().isDistributedController()) {
+            return Response.ok(
+                    LiveChanges.getDistributedReadAggregator()
+                            .aggregateStatus(LiveChanges.getRuntimeState(), LiveChanges.getConfiguredHttpServerPort(), "/test/status")
+                            .toString()
+            ).build();
+        }
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("startTime", JMeterContextService.getTestStartTime());
         jsonObject.put("runningTime", GenericHelper.getTestTimeElapsedSec());
@@ -66,6 +73,13 @@ public class TestResource {
     @Path("/summary")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getTestSummary() {
+        if (LiveChanges.getRuntimeState().isDistributedController()) {
+            return Response.ok(
+                    LiveChanges.getDistributedReadAggregator()
+                            .aggregateSummary(LiveChanges.getRuntimeState(), LiveChanges.getConfiguredHttpServerPort(), "/test/summary")
+                            .toString()
+            ).build();
+        }
         JSONArray jsonArray = new JSONArray();
         SamplerMap samplerMap = LiveChanges.getSamplerMap();
         for(Map.Entry<String, ResultHolder> entry : samplerMap.getMap().entrySet()) {
@@ -105,6 +119,13 @@ public class TestResource {
     @Path("/errors")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getTestErrors() {
+        if (LiveChanges.getRuntimeState().isDistributedController()) {
+            return Response.ok(
+                    LiveChanges.getDistributedReadAggregator()
+                            .aggregateErrors(LiveChanges.getRuntimeState(), LiveChanges.getConfiguredHttpServerPort(), "/test/errors")
+                            .toString()
+            ).build();
+        }
         JSONArray jsonArray = new JSONArray();
         SamplerMap samplerMap = LiveChanges.getSamplerMap();
         for(Map.Entry<String, SampleResult> entry : samplerMap.getRawMap().entrySet()) {

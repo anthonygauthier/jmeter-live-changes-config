@@ -45,7 +45,7 @@ public class App {
             logger.info(String.format("Exposed API on port %d", this.port));
         } catch (Exception e) {
             logger.error("Error occurred while starting embedded Jetty server", e);
-            System.exit(1);
+            throw new IllegalStateException("Error occurred while starting embedded Jetty server", e);
         }
     }
 
